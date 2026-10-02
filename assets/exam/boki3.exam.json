@@ -1,0 +1,27 @@
+{
+  "examId": "boki3",
+  "name": "日商簿記検定3級",
+  "audience": "adult",
+  "subjects": [
+    { "subjectId": "q1_shiwake", "name": "第1問 仕訳", "order": 1 },
+    { "subjectId": "q2_choubo", "name": "第2問 帳簿・伝票等", "order": 2 },
+    { "subjectId": "q3_kessan", "name": "第3問 決算", "order": 3 }
+  ],
+  "levels": [
+    {
+      "levelId": "level3_until_2027_03",
+      "name": "3級（〜2027年3月実施・配点45/20/35）",
+      "questionCount": 3,
+      "timeLimitSec": 3600,
+      "passRule": { "totalPct": 70.0 }
+    },
+    {
+      "levelId": "level3_from_2027_04",
+      "name": "3級（2027年4月以降実施・配点45/25/30）",
+      "questionCount": 3,
+      "timeLimitSec": 3600,
+      "passRule": { "totalPct": 70.0 }
+    }
+  ],
+  "examDates": []
+}
