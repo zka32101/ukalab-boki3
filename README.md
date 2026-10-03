@@ -14,14 +14,14 @@ ukalab-boki3（このリポジトリ） → yourwish_kentei（検定エンジン
 | リポジトリ | タグ |
 |---|---|
 | `zka32101/app_common_kit` | v0.2.0 |
-| `zka32101/yourwish_kentei` | v0.2.0 |
+| `zka32101/yourwish_kentei` | v0.3.0 |
 
-## 現状（2026-10-02時点）
+## 現状（2026-10-03時点）
 
 - `pubspec.yaml`・`assets/exam/boki3.exam.json`（ExamConfig）・最小限の `lib/main.dart` のみ
 - 問題データ（JSONL）は未着手。一次資料（日商simul・商工会議所の公式サンプル問題等）を使い、出典欄（`sourceRef`・`lawVersion`）を必ず付ける方針（AIの査読を信用しすぎない）
-- `yourwish_kentei` には現時点で問題タイプが `choice`（選択式）しかなく、簿記3級に必須の「仕訳タイプ（借方・貸方の勘定科目＋金額を入力する表形式）」は未実装。追加する場合は `yourwish_kentei` への別PRとして、他の資格アプリ（G検定等）の型実装状況を確認してから出す
-- 推し・コイン・衣装・学習体験の「型」は共通仕様（`app_common_kit` v0.2.0）を適用可能だが、簿記固有の学習体験の「型」9部品はまだ `yourwish_kentei` 側に実装されていない（v0.3以降予定）
+- 簿記3級に必須の「仕訳タイプ（借方・貸方の勘定科目＋金額を入力する表形式）」は `yourwish_kentei` v0.3.0（`QuestionType.journal`・`JournalLine`・`JournalAnswer`・`judgeJournal`）で実装済み。既存のchoice型アプリへの影響なし。`PracticeSession`（演習セッション）のjournal対応はまだ未実装
+- 推し・コイン・衣装・学習体験の「型」は共通仕様（`app_common_kit` v0.2.0）を適用可能だが、簿記固有の学習体験の「型」9部品はまだ `yourwish_kentei` 側に実装されていない
 
 ## 2027年4月の配点変更
 
