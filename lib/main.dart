@@ -1,8 +1,12 @@
 import 'package:app_common_kit/app_common_kit.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:yourwish_kentei/yourwish_kentei.dart';
+
+import 'journal_input/journal_question_view.dart';
 
 void main() {
-  runApp(const UkalabBoki3App());
+  runApp(const ProviderScope(child: UkalabBoki3App()));
 }
 
 class UkalabBoki3App extends StatelessWidget {
@@ -20,7 +24,7 @@ class UkalabBoki3App extends StatelessWidget {
       home: UkalabShell(
         pages: const [
           _HomePage(),
-          _PlaceholderPage(label: '学ぶ'),
+          _LearnPage(),
           _PlaceholderPage(label: '模擬'),
           _PlaceholderPage(label: '記録'),
           _AboutPage(),
@@ -36,6 +40,46 @@ class _HomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return const Center(child: Text('うかラボ 簿記3級'));
+  }
+}
+
+/// 「学ぶ」タブ。現時点は仕訳入力UIの動作確認用サンプル問題への入口のみ。
+class _LearnPage extends StatelessWidget {
+  const _LearnPage();
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: FilledButton(
+        onPressed: () => Navigator.of(context).push(
+          MaterialPageRoute(builder: (_) => const _SampleJournalQuestionPage()),
+        ),
+        child: const Text('仕訳の問題を試す（サンプル）'),
+      ),
+    );
+  }
+}
+
+class _SampleJournalQuestionPage extends StatelessWidget {
+  const _SampleJournalQuestionPage();
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text('仕訳の問題（サンプル）')),
+      body: const SafeArea(
+        child: JournalQuestionView(
+          prompt: '商品1,000円を現金で売り上げた。この取引を仕訳しなさい。',
+          correctAnswer: JournalAnswer(
+            lines: [
+              JournalLine(side: JournalSide.debit, account: 'cash', amount: 1000),
+              JournalLine(side: JournalSide.credit, account: 'sales', amount: 1000),
+            ],
+          ),
+          explanation: '現金(資産)が増えるので借方に、売上(収益)が発生するので貸方に記入する。',
+        ),
+      ),
+    );
   }
 }
 
