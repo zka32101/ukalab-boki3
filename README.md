@@ -19,7 +19,7 @@ ukalab-boki3（このリポジトリ） → yourwish_kentei（検定エンジン
 ## 現状（2026-10-03時点）
 
 - `pubspec.yaml`・`assets/exam/boki3.exam.json`（ExamConfig）・最小限の `lib/main.dart` のみ
-- 問題データ（JSONL）は未着手。一次資料（日商simul・商工会議所の公式サンプル問題等）を使い、出典欄（`sourceRef`・`lawVersion`）を必ず付ける方針（AIの査読を信用しすぎない）
+- 問題データ（JSONL）は `assets/exam/boki3.questions.jsonl` に第1問（仕訳）相当の自作例題20問を作成済み（出典欄 `sourceRef` に根拠の区分表項目を明記。`test/questions_data_test.dart` で出典必須・貸借一致・ExamConfigとの整合性を機械検証）。過去問の転載はしない方針。第2問（帳簿・伝票等）・第3問（決算）は未着手
 - 簿記3級に必須の「仕訳タイプ（借方・貸方の勘定科目＋金額を入力する表形式）」は `yourwish_kentei` v0.4.0（`QuestionType.journal`・`JournalLine`・`JournalAnswer`・`judgeJournal`）で実装済み。既存のchoice型アプリへの影響なし。`PracticeSession`（演習セッション）のjournal対応はまだ未実装
 - `yourwish_kentei` v0.4.0では `LevelConfig.subjectQuestionCounts`（科目別の出題数配分）も追加された（別PR）。簿記3級の大問別出題数に使える
 - 推し・コイン・衣装・学習体験の「型」は共通仕様（`app_common_kit` v0.2.0）を適用可能だが、簿記固有の学習体験の「型」9部品はまだ `yourwish_kentei` 側に実装されていない
