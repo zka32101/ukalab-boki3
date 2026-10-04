@@ -18,9 +18,10 @@
     {
       "levelId": "level3_from_2027_04",
       "name": "3級（2027年4月以降実施・配点45/25/30）",
-      "questionCount": 3,
+      "questionCount": 15,
       "timeLimitSec": 3600,
-      "passRule": { "totalPct": 70.0 }
+      "passRule": { "totalPct": 70.0 },
+      "subjectQuestionCounts": { "q1_shiwake": 10, "q2_choubo": 3, "q3_kessan": 2 }
     }
   ],
   "examDates": []

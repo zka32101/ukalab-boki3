@@ -20,6 +20,7 @@ class JournalQuestionView extends ConsumerStatefulWidget {
     this.explanation,
     this.onAnswered,
     this.onNext,
+    this.revealResult = true,
   });
 
   final String prompt;
@@ -32,6 +33,10 @@ class JournalQuestionView extends ConsumerStatefulWidget {
   /// 非null なら、答え合わせ後に「もう一度」の代わりに「次の問題へ」ボタンを表示し、
   /// 押されたときにこれを呼ぶ（複数問を連続して出題する画面向け）。
   final VoidCallback? onNext;
+
+  /// false なら、答え合わせの正誤・解説を表示せず、入力を確定したら即座に
+  /// [onNext] を呼ぶ（模擬試験モード向け。本試験では解答中に正誤が分からない）。
+  final bool revealResult;
 
   @override
   ConsumerState<JournalQuestionView> createState() => _JournalQuestionViewState();
@@ -67,8 +72,12 @@ class _JournalQuestionViewState extends ConsumerState<JournalQuestionView> {
   void _checkAnswer() {
     final lines = ref.read(journalInputProvider).toJournalLines();
     final result = judgeJournal(widget.correctAnswer, lines);
-    setState(() => _result = result);
     widget.onAnswered?.call(result, lines);
+    if (widget.revealResult) {
+      setState(() => _result = result);
+    } else {
+      widget.onNext?.call();
+    }
   }
 
   void _retry() {
@@ -139,7 +148,10 @@ class _JournalQuestionViewState extends ConsumerState<JournalQuestionView> {
         Padding(
           padding: const EdgeInsets.all(16),
           child: _result == null
-              ? FilledButton(onPressed: _checkAnswer, child: const Text('答え合わせ'))
+              ? FilledButton(
+                  onPressed: _checkAnswer,
+                  child: Text(widget.revealResult ? '答え合わせ' : '次へ'),
+                )
               : (widget.onNext != null
                   ? FilledButton(onPressed: widget.onNext, child: const Text('次の問題へ'))
                   : OutlinedButton(onPressed: _retry, child: const Text('もう一度'))),

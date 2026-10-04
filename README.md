@@ -29,6 +29,7 @@ CI上でタグを作成・pushできる。
 - 簿記3級に必須の「仕訳タイプ（借方・貸方の勘定科目＋金額を入力する表形式）」は `yourwish_kentei`（`QuestionType.journal`・`JournalLine`・`JournalAnswer`・`judgeJournal`）で実装済み。`PracticeSession`（演習セッション）のjournal対応（`answerJournal`）・worksheet対応（`answerWorksheet`）も実装・マージ済み（v0.9.1〜v0.10.0、PR#11・#13）
 - `assets/exam/boki3.questions.jsonl` の仕訳（journal型）・理論（choice型）・精算表（worksheet型）問題を `PracticeSession` で連続出題する画面 `lib/practice/practice_page.dart` を実装。精算表入力UIは `lib/worksheet_input/`（表形式・セル選択・テンキー入力・セル単位の正誤表示、`lib/journal_input/` と対になる構成）。「学ぶ」タブの「問題を練習する（問題集）」から開ける。Playwrightで実機確認済み（journal/choice/worksheet混在、精算表5セル全入力→正解判定まで確認、console error 0件）
 - 精算表（worksheet型）の入力セルを選択すると、横スクロールした先（画面外）にあっても自動でスクロールして見える位置まで追従する（`WorksheetTable` が `Scrollable.ensureVisible` を使用）。`test/worksheet_autoscroll_test.dart` でオフセット変化を検証
+- 「模擬」タブから、本試験形式（`level3_from_2027_04`：15問・60分・合格ライン総合70%、科目別出題数は仕訳10/帳簿伝票3/決算2）で1回通しで解く模擬試験モード `lib/mock_exam/mock_exam_page.dart` を実装。本試験と同じく解答中は正誤を表示せず、全問解答後に `yourwish_kentei` の `pickMockExamQuestions`・`scoreMockExam` でまとめて採点し、総合点・科目別得点・合否を表示する。`JournalQuestionView`・`ChoiceQuestionView`・`WorksheetQuestionView` に `revealResult: false` を追加し、模擬試験では即答で正誤を見せずに次の問題へ進めるようにした。`test/mock_exam_page_test.dart` で開始〜全15問解答〜結果表示までを検証
 - `yourwish_kentei` v0.4.0では `LevelConfig.subjectQuestionCounts`（科目別の出題数配分）も追加された（別PR）。簿記3級の大問別出題数に使える
 - 推し・コイン・衣装・学習体験の「型」は共通仕様（`app_common_kit` v0.2.0）を適用可能だが、簿記固有の学習体験の「型」9部品はまだ `yourwish_kentei` 側に実装されていない
 - 仕訳入力UI（表形式テーブル・科目リストボックス・テンキー）の設計は `docs/journal_input_ui_v0.md`。実装はまず `ukalab-boki3` 側（`lib/journal_input/`）で行う方針

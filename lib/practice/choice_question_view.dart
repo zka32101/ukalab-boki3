@@ -12,6 +12,7 @@ class ChoiceQuestionView extends StatefulWidget {
     this.explanation,
     this.onAnswered,
     this.onNext,
+    this.revealResult = true,
   });
 
   final String prompt;
@@ -26,6 +27,10 @@ class ChoiceQuestionView extends StatefulWidget {
   /// 押されたときにこれを呼ぶ（複数問を連続して出題する画面向け）。
   final VoidCallback? onNext;
 
+  /// false なら、答え合わせの正誤・解説を表示せず、選択したら即座に
+  /// [onNext] を呼ぶ（模擬試験モード向け。本試験では解答中に正誤が分からない）。
+  final bool revealResult;
+
   @override
   State<ChoiceQuestionView> createState() => _ChoiceQuestionViewState();
 }
@@ -38,8 +43,12 @@ class _ChoiceQuestionViewState extends State<ChoiceQuestionView> {
     final selected = _selected;
     if (selected == null) return;
     final correct = selected == widget.answerIndex;
-    setState(() => _answered = true);
     widget.onAnswered?.call(selected, correct);
+    if (widget.revealResult) {
+      setState(() => _answered = true);
+    } else {
+      widget.onNext?.call();
+    }
   }
 
   void _retry() {
@@ -86,7 +95,7 @@ class _ChoiceQuestionViewState extends State<ChoiceQuestionView> {
           child: !_answered
               ? FilledButton(
                   onPressed: _selected == null ? null : _checkAnswer,
-                  child: const Text('答え合わせ'),
+                  child: Text(widget.revealResult ? '答え合わせ' : '次へ'),
                 )
               : (widget.onNext != null
                   ? FilledButton(onPressed: widget.onNext, child: const Text('次の問題へ'))

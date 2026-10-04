@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:yourwish_kentei/yourwish_kentei.dart';
 
 import 'journal_input/journal_question_view.dart';
+import 'mock_exam/mock_exam_page.dart';
 import 'practice/practice_page.dart';
 
 void main() {
@@ -26,7 +27,7 @@ class UkalabBoki3App extends StatelessWidget {
         pages: const [
           _HomePage(),
           _LearnPage(),
-          _PlaceholderPage(label: '模擬'),
+          _MockExamTab(),
           _PlaceholderPage(label: '記録'),
           _AboutPage(),
         ],
@@ -91,6 +92,24 @@ class _SampleJournalQuestionPage extends StatelessWidget {
           ),
           explanation: '現金(資産)が増えるので借方に、売上(収益)が発生するので貸方に記入する。',
         ),
+      ),
+    );
+  }
+}
+
+/// 「模擬」タブ。本試験形式（出題数・制限時間・配点）で1回通しで解く
+/// 模擬試験モードへの入口。
+class _MockExamTab extends StatelessWidget {
+  const _MockExamTab();
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: FilledButton(
+        onPressed: () => Navigator.of(context).push(
+          MaterialPageRoute(builder: (_) => const MockExamPage()),
+        ),
+        child: const Text('模擬試験を始める'),
       ),
     );
   }
