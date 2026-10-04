@@ -18,11 +18,20 @@ class JournalQuestionView extends ConsumerStatefulWidget {
     required this.prompt,
     required this.correctAnswer,
     this.explanation,
+    this.onAnswered,
+    this.onNext,
   });
 
   final String prompt;
   final JournalAnswer correctAnswer;
   final String? explanation;
+
+  /// 答え合わせボタンが押されたときに、判定結果とユーザー入力を通知する。
+  final void Function(JournalJudgeResult result, List<JournalLine> userInput)? onAnswered;
+
+  /// 非null なら、答え合わせ後に「もう一度」の代わりに「次の問題へ」ボタンを表示し、
+  /// 押されたときにこれを呼ぶ（複数問を連続して出題する画面向け）。
+  final VoidCallback? onNext;
 
   @override
   ConsumerState<JournalQuestionView> createState() => _JournalQuestionViewState();
@@ -34,6 +43,19 @@ class _JournalQuestionViewState extends ConsumerState<JournalQuestionView> {
   final List<String> _recentAccounts = [];
   JournalJudgeResult? _result;
 
+  @override
+  void initState() {
+    super.initState();
+    // 複数問を連続して出す画面（PracticeSession連動、問題ごとに key を変えて
+    // Widget自体を作り直す）では initState が呼ばれ didUpdateWidget は呼ばれない。
+    // journalInputProvider はグローバルな状態なので、表示開始時に必ずリセットして
+    // 前の問題の入力が残らないようにする。riverpodはビルド中のprovider変更を
+    // 許さないため、最初のフレーム描画後に行う。
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) ref.read(journalInputProvider.notifier).reset();
+    });
+  }
+
   void _onAccountSelected(String code) {
     setState(() {
       _recentAccounts.remove(code);
@@ -44,12 +66,28 @@ class _JournalQuestionViewState extends ConsumerState<JournalQuestionView> {
 
   void _checkAnswer() {
     final lines = ref.read(journalInputProvider).toJournalLines();
-    setState(() => _result = judgeJournal(widget.correctAnswer, lines));
+    final result = judgeJournal(widget.correctAnswer, lines);
+    setState(() => _result = result);
+    widget.onAnswered?.call(result, lines);
   }
 
   void _retry() {
     setState(() => _result = null);
     ref.read(journalInputProvider.notifier).reset();
+  }
+
+  @override
+  void didUpdateWidget(covariant JournalQuestionView oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    // 複数問を連続して出す画面（PracticeSession連動）で問題が切り替わったら、
+    // 前の問題の入力・判定結果・最近使った科目をリセットする。
+    if (oldWidget.prompt != widget.prompt) {
+      setState(() {
+        _result = null;
+        _recentAccounts.clear();
+      });
+      ref.read(journalInputProvider.notifier).reset();
+    }
   }
 
   @override
@@ -102,7 +140,9 @@ class _JournalQuestionViewState extends ConsumerState<JournalQuestionView> {
           padding: const EdgeInsets.all(16),
           child: _result == null
               ? FilledButton(onPressed: _checkAnswer, child: const Text('答え合わせ'))
-              : OutlinedButton(onPressed: _retry, child: const Text('もう一度')),
+              : (widget.onNext != null
+                  ? FilledButton(onPressed: widget.onNext, child: const Text('次の問題へ'))
+                  : OutlinedButton(onPressed: _retry, child: const Text('もう一度'))),
         ),
       ],
     );

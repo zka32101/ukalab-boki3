@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:yourwish_kentei/yourwish_kentei.dart';
 
 import 'journal_input/journal_question_view.dart';
+import 'practice/journal_practice_page.dart';
 
 void main() {
   runApp(const ProviderScope(child: UkalabBoki3App()));
@@ -50,11 +51,23 @@ class _LearnPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Center(
-      child: FilledButton(
-        onPressed: () => Navigator.of(context).push(
-          MaterialPageRoute(builder: (_) => const _SampleJournalQuestionPage()),
-        ),
-        child: const Text('仕訳の問題を試す（サンプル）'),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          FilledButton(
+            onPressed: () => Navigator.of(context).push(
+              MaterialPageRoute(builder: (_) => const _SampleJournalQuestionPage()),
+            ),
+            child: const Text('仕訳の問題を試す（サンプル）'),
+          ),
+          const SizedBox(height: 12),
+          OutlinedButton(
+            onPressed: () => Navigator.of(context).push(
+              MaterialPageRoute(builder: (_) => const JournalPracticePage()),
+            ),
+            child: const Text('仕訳を練習する（問題集）'),
+          ),
+        ],
       ),
     );
   }
