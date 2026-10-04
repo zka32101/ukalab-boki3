@@ -22,7 +22,7 @@ extension WorksheetColumnLabel on WorksheetColumn {
 
 /// 精算表・財務諸表の表埋めテーブル。[givenCells] は固定値として、
 /// [blankCells] は入力可能セルとして表示する。横方向にスクロールする。
-class WorksheetTable extends ConsumerWidget {
+class WorksheetTable extends ConsumerStatefulWidget {
   const WorksheetTable({
     super.key,
     required this.givenCells,
@@ -40,8 +40,32 @@ class WorksheetTable extends ConsumerWidget {
   static const _dataColumnWidth = 92.0;
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final allCells = [...givenCells, ...blankCells];
+  ConsumerState<WorksheetTable> createState() => _WorksheetTableState();
+}
+
+class _WorksheetTableState extends ConsumerState<WorksheetTable> {
+  final Map<WorksheetCellRef, GlobalKey> _cellKeys = {};
+  WorksheetCellRef? _lastSelectedCell;
+
+  GlobalKey _keyFor(WorksheetCellRef cell) => _cellKeys.putIfAbsent(cell, GlobalKey.new);
+
+  void _scrollToIfSelected(WorksheetCellRef? cell) {
+    if (cell == null || cell == _lastSelectedCell) return;
+    _lastSelectedCell = cell;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final cellContext = _cellKeys[cell]?.currentContext;
+      if (cellContext == null || !cellContext.mounted) return;
+      Scrollable.ensureVisible(
+        cellContext,
+        duration: const Duration(milliseconds: 200),
+        alignment: 0.5,
+      );
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final allCells = [...widget.givenCells, ...widget.blankCells];
     // 出現順でユニーク化。
     final seen = <String>{};
     final uniqueAccounts = [
@@ -50,19 +74,21 @@ class WorksheetTable extends ConsumerWidget {
     ];
     final columns = WorksheetColumn.values.where((col) => allCells.any((c) => c.column == col)).toList();
 
-    final givenByCell = {for (final c in givenCells) (c.account, c.column): c.amount};
-    final blankByCell = {for (final c in blankCells) (c.account, c.column): true};
+    final givenByCell = {for (final c in widget.givenCells) (c.account, c.column): c.amount};
+    final blankByCell = {for (final c in widget.blankCells) (c.account, c.column): true};
 
     final state = ref.watch(worksheetInputProvider);
     final controller = ref.read(worksheetInputProvider.notifier);
+    _scrollToIfSelected(state.selectedCell);
 
     return SingleChildScrollView(
       scrollDirection: Axis.horizontal,
       child: Table(
         border: TableBorder.all(color: Theme.of(context).colorScheme.outlineVariant),
         columnWidths: {
-          0: const FixedColumnWidth(_accountColumnWidth),
-          for (var i = 0; i < columns.length; i++) i + 1: const FixedColumnWidth(_dataColumnWidth),
+          0: const FixedColumnWidth(WorksheetTable._accountColumnWidth),
+          for (var i = 0; i < columns.length; i++)
+            i + 1: const FixedColumnWidth(WorksheetTable._dataColumnWidth),
         },
         children: [
           TableRow(
@@ -109,17 +135,18 @@ class WorksheetTable extends ConsumerWidget {
       return const _ValueCell(amount: null, variant: _CellVariant.empty);
     }
     final cell = (account, column);
-    final diffKind = cellDiffs?[cell];
+    final diffKind = widget.cellDiffs?[cell];
     final variant = switch (diffKind) {
       WorksheetCellDiffKind.correct => _CellVariant.correct,
       WorksheetCellDiffKind.wrongAmount || WorksheetCellDiffKind.missing => _CellVariant.wrong,
       _ => _CellVariant.editable,
     };
     return _ValueCell(
+      key: _keyFor(cell),
       amount: state.amountAt(cell),
       variant: variant,
-      selected: !readOnly && state.selectedCell == cell,
-      onTap: readOnly ? null : () => controller.selectCell(cell),
+      selected: !widget.readOnly && state.selectedCell == cell,
+      onTap: widget.readOnly ? null : () => controller.selectCell(cell),
     );
   }
 }
@@ -160,6 +187,7 @@ class _AccountNameCell extends StatelessWidget {
 
 class _ValueCell extends StatelessWidget {
   const _ValueCell({
+    super.key,
     required this.amount,
     required this.variant,
     this.selected = false,
