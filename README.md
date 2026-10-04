@@ -24,7 +24,7 @@ ukalab-boki3（このリポジトリ） → yourwish_kentei（検定エンジン
 - `yourwish_kentei` v0.4.0では `LevelConfig.subjectQuestionCounts`（科目別の出題数配分）も追加された（別PR）。簿記3級の大問別出題数に使える
 - 推し・コイン・衣装・学習体験の「型」は共通仕様（`app_common_kit` v0.2.0）を適用可能だが、簿記固有の学習体験の「型」9部品はまだ `yourwish_kentei` 側に実装されていない
 - 仕訳入力UI（表形式テーブル・科目リストボックス・テンキー）の設計は `docs/journal_input_ui_v0.md`。実装はまず `ukalab-boki3` 側（`lib/journal_input/`）で行う方針
-- 勘定科目一覧の下書きは `docs/accounts_draft_v0.md`（公式出題区分表との照合が未済）
+- 勘定科目一覧は `docs/accounts_v1_official.md`（確定版 v1。商工会議所の公式出題区分表PDF（2026-07-31最終改定、2027-04-01施行）をユーザーが提供し、照合済み。ただし2026年度中〜2027年3月実施分の旧区分表はまだ一次資料未入手）
 
 ## 2027年4月の配点変更
 
