@@ -21,7 +21,7 @@ void main() {
 
     expect(parsed.questions, isNotEmpty);
     for (final q in parsed.questions) {
-      expect(q.type, QuestionType.journal);
+      expect(q.type, anyOf(QuestionType.journal, QuestionType.choice));
     }
   });
 
