@@ -466,11 +466,11 @@ packages:
     dependency: "direct main"
     description:
       path: "."
-      ref: "v0.4.0"
-      resolved-ref: f24216f27a1cbc295b6f640bef5564ceccb6cbaa
+      ref: "v0.10.0"
+      resolved-ref: "10dc927127125ec0562a678d9b2bac618f781d99"
       url: "https://github.com/zka32101/yourwish_kentei.git"
     source: git
-    version: "0.4.0"
+    version: "0.10.0"
 sdks:
   dart: ">=3.13.0 <4.0.0"
   flutter: ">=3.47.0"
