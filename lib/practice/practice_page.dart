@@ -3,11 +3,11 @@ import 'package:flutter/services.dart' show rootBundle;
 import 'package:yourwish_kentei/yourwish_kentei.dart';
 
 import '../journal_input/journal_question_view.dart';
+import '../worksheet_input/worksheet_question_view.dart';
 import 'choice_question_view.dart';
 
-/// `assets/exam/boki3.questions.jsonl` の問題（type: journal・choice）を
-/// [PracticeSession] で順に出題する画面。worksheet型はまだ対応していない
-/// （UI未実装、プールから除く）。問題データのロード・パース・品質ゲート
+/// `assets/exam/boki3.questions.jsonl` の問題（type: journal・choice・worksheet）を
+/// [PracticeSession] で順に出題する画面。問題データのロード・パース・品質ゲート
 /// （出典必須・貸借一致など）は `test/questions_data_test.dart` で
 /// 別途検証済みのため、ここではロード失敗のみハンドリングする。
 class PracticePage extends StatefulWidget {
@@ -32,10 +32,7 @@ class _PracticePageState extends State<PracticePage> {
     if (parsed.issues.isNotEmpty) {
       throw StateError('問題データの読み込みに失敗しました: ${parsed.issues}');
     }
-    final supported = parsed.questions.where(
-      (q) => q.type == QuestionType.journal || q.type == QuestionType.choice,
-    );
-    return PracticeSession(pool: supported, size: supported.length);
+    return PracticeSession(pool: parsed.questions, size: parsed.questions.length);
   }
 
   @override
@@ -116,9 +113,14 @@ class _SessionBodyState extends State<_SessionBody> {
           onNext: () => setState(() {}),
         );
       case QuestionType.worksheet:
-        // worksheet型のUIは未実装。_loadSession でプールから除外しているため
-        // 通常は到達しない。
-        return const Center(child: Text('この問題形式はまだ対応していません'));
+        return WorksheetQuestionView(
+          key: ValueKey(current.qid),
+          prompt: current.prompt,
+          correctAnswer: current.worksheetAnswer!,
+          explanation: current.explanation,
+          onAnswered: (result, cells) => session.answerWorksheet(cells),
+          onNext: () => setState(() {}),
+        );
     }
   }
 }
