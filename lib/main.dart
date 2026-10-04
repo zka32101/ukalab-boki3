@@ -4,7 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:yourwish_kentei/yourwish_kentei.dart';
 
 import 'journal_input/journal_question_view.dart';
-import 'practice/journal_practice_page.dart';
+import 'practice/practice_page.dart';
 
 void main() {
   runApp(const ProviderScope(child: UkalabBoki3App()));
@@ -63,9 +63,9 @@ class _LearnPage extends StatelessWidget {
           const SizedBox(height: 12),
           OutlinedButton(
             onPressed: () => Navigator.of(context).push(
-              MaterialPageRoute(builder: (_) => const JournalPracticePage()),
+              MaterialPageRoute(builder: (_) => const PracticePage()),
             ),
-            child: const Text('仕訳を練習する（問題集）'),
+            child: const Text('問題を練習する（問題集）'),
           ),
         ],
       ),
