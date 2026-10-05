@@ -24,7 +24,7 @@ CI上でタグを作成・pushできる。
 ## 現状（2026-10-04時点）
 
 - `pubspec.yaml`・`assets/exam/boki3.exam.json`（ExamConfig）・最小限の `lib/main.dart` のみ
-- 問題データ（JSONL）は `assets/exam/boki3.questions.jsonl` に59問作成済み（第1問相当の仕訳48問、第2問相当の伝票・証ひょう読み取り5問・理論（choice型）5問、第3問相当の精算表（worksheet型）サンプル1問。固定資産の購入・売却損益、前払金・前受金・仮払金・仮受金・未収入金・未払金・貸付金・預り金・小口現金、受取家賃・地代、貸倒損失・償却債権取立益・貸倒引当金戻入、法人税等、繰越利益剰余金の配当、売上原価の算定（しいくり）などをカバー。出典欄 `sourceRef` に根拠の区分表項目を明記。`test/questions_data_test.dart` で出典必須・貸借一致・ExamConfigとの整合性を機械検証）。過去問の転載はしない方針
+- 問題データ（JSONL）は `assets/exam/boki3.questions.jsonl` に81問作成済み（journal型66問・choice型10問・worksheet型3問。固定資産の購入・売却損益、前払金・前受金・仮払金・仮受金・未収入金・未払金・貸付金・預り金・小口現金、受取家賃・地代、貸倒損失・償却債権取立益・貸倒引当金戻入、法人税等、繰越利益剰余金の配当、売上原価の算定（しいくり）、電子記録債権・電子記録債務の発生〜決済、クレジット売掛金・受取商品券の精算、差入保証金、定期預金、当座借越、未払消費税の決算整理、雑損・雑益、費用の見越し（未払費用）、増資、精算表の貸倒引当金設定・減価償却と未払費用の複合パターンなどをカバー。理論（choice型）は貸借対照表・損益計算書の区分、精算表の仕組み、減価償却の要素、伝票の種類なども追加。出典欄 `sourceRef` に根拠の区分表項目を明記。`test/questions_data_test.dart` で出典必須・貸借一致・ExamConfigとの整合性を機械検証）。過去問の転載はしない方針
 - 第2問・第3問の出題形式の設計は `docs/question_types_v1_design.md`。精算表・財務諸表の穴埋めは `QuestionType.worksheet`（`yourwish_kentei` v0.10.0、PR#13）として実装・マージ済み
 - 簿記3級に必須の「仕訳タイプ（借方・貸方の勘定科目＋金額を入力する表形式）」は `yourwish_kentei`（`QuestionType.journal`・`JournalLine`・`JournalAnswer`・`judgeJournal`）で実装済み。`PracticeSession`（演習セッション）のjournal対応（`answerJournal`）・worksheet対応（`answerWorksheet`）も実装・マージ済み（v0.9.1〜v0.10.0、PR#11・#13）
 - `assets/exam/boki3.questions.jsonl` の仕訳（journal型）・理論（choice型）・精算表（worksheet型）問題を `PracticeSession` で連続出題する画面 `lib/practice/practice_page.dart` を実装。精算表入力UIは `lib/worksheet_input/`（表形式・セル選択・テンキー入力・セル単位の正誤表示、`lib/journal_input/` と対になる構成）。「学ぶ」タブの「問題を練習する（問題集）」から開ける。Playwrightで実機確認済み（journal/choice/worksheet混在、精算表5セル全入力→正解判定まで確認、console error 0件）
