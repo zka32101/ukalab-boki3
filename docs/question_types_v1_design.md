@@ -160,5 +160,5 @@ class LedgerAnswer {
 5. 第2問の理論（choice型）問題データ作成 — 完了
 6. `yourwish_kentei` に `QuestionType.ledger` を追加（`judgeLedger` 含む、Phase 2設計に基づく） — 完了（v0.12.0）
 7. `ukalab-boki3` 側に補助簿入力UI（`LedgerTable`、`WorksheetTable` と同パターン） — 完了（`lib/ledger_input/`）
-8. 商品有高帳（移動平均法）・現金出納帳などの問題データ作成 — 商品有高帳（移動平均法）1問作成済み。
-   現金出納帳など他の補助簿、問題数の拡充は今後の課題
+8. 商品有高帳（移動平均法）・現金出納帳などの問題データ作成 — 商品有高帳（移動平均法）1問、
+   現金出納帳2問作成済み。売掛金元帳・買掛金元帳など他の補助簿、問題数の拡充は今後の課題
