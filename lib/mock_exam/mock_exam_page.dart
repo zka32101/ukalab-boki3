@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:yourwish_kentei/yourwish_kentei.dart';
 
+import '../evidence_input/evidence_question_view.dart';
 import '../journal_input/journal_question_view.dart';
 import '../ledger_input/ledger_question_view.dart';
 import '../practice/choice_question_view.dart';
@@ -340,6 +341,16 @@ class _MockExamRunningView extends StatelessWidget {
             prompt: question.prompt,
             correctAnswer: question.journalAnswer!,
             kind: voucherKind,
+            revealResult: false,
+            onAnswered: (_, lines) => onJournalAnswered(question.qid, lines),
+            onNext: onNext,
+          );
+        }
+        if (question.topicId == 'voucher_reading') {
+          return EvidenceQuestionView(
+            key: ValueKey(question.qid),
+            prompt: question.prompt,
+            correctAnswer: question.journalAnswer!,
             revealResult: false,
             onAnswered: (_, lines) => onJournalAnswered(question.qid, lines),
             onNext: onNext,

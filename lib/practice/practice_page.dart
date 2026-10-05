@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:yourwish_kentei/yourwish_kentei.dart';
 
+import '../evidence_input/evidence_question_view.dart';
 import '../journal_input/journal_question_view.dart';
 import '../ledger_input/ledger_question_view.dart';
 import '../progress/progress_store.dart';
@@ -131,6 +132,16 @@ class _SessionBodyState extends State<_SessionBody> {
             prompt: current.prompt,
             correctAnswer: current.journalAnswer!,
             kind: voucherKind,
+            explanation: current.explanation,
+            onAnswered: onJournalAnswered,
+            onNext: () => setState(() {}),
+          );
+        }
+        if (current.topicId == 'voucher_reading') {
+          return EvidenceQuestionView(
+            key: ValueKey(current.qid),
+            prompt: current.prompt,
+            correctAnswer: current.journalAnswer!,
             explanation: current.explanation,
             onAnswered: onJournalAnswered,
             onNext: () => setState(() {}),

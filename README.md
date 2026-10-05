@@ -48,6 +48,17 @@ CI上でタグを作成・pushできる。`yourwish_kentei` は他プロジェ�
   `test/voucher_question_view_test.dart` で3種類とも検証済み。`flutter build web`・ローカルの
   CanvasKitアセット・Playwrightで実機のレンダリングも確認（3種類の配色・簡易フォーム・通常の
   仕訳テーブルがそれぞれ正しく表示され、console error 0件）
+- 第2問の証ひょう読み取り問題（`topicId: voucher_reading`）向けに、領収書・請求書などの記載内容を
+  書類風のカードで表示する `lib/evidence_input/`（`EvidenceQuestionView`）を追加。新しい画像アセット
+  は使わず、既存の `prompt` テキスト（`「品名A 5個×1,000円＝5,000円、...」` のように証ひょうの内容を
+  `「」` で囲む自作ルールで統一済み）をパースして、経緯の説明文・証ひょう風カード（タイトル・項目・
+  合計の強調表示）・短縮した指示文の3つに分解表示する（`EvidenceDocument.parseEvidenceDocument`）。
+  `「」` で囲まれていない問題（証ひょうの内容を地の文だけで説明しているもの）は、通常の
+  `JournalQuestionView` にそのままフォールバックする。本格的な画像添付（写真・PDF）はアセット管理・
+  採点ロジックへの影響が未検討なトレードオフがあるため見送り、既存のテキストデータだけで実現できる
+  範囲にとどめた。`test/evidence_document_test.dart`（パース）・`test/evidence_question_view_test.dart`
+  （表示・採点・フォールバック）で検証済み。`flutter build web` + Playwrightで実機のレンダリングも
+  確認（領収書・納品書（兼請求書）・「」なしフォールバックの3パターンとも正しく表示、console error 0件）
 - 第2問の補助簿記入（商品有高帳・現金出納帳など）向けに `QuestionType.ledger`（`yourwish_kentei` v0.12.0）を実装。`LedgerCell`（記入行×列グループ〈受入/払出/残高〉×項目〈数量/単価/金額〉）の `givenCells`/`blankCells` を `judgeLedger` でセル単位に採点する、`worksheet` 型と同じ設計パターン。入力UIは `lib/ledger_input/`（`WorksheetTable` と対になる構成、`LedgerTable`・`LedgerQuestionView` など）。商品有高帳（移動平均法）・現金出納帳・得意先元帳（売掛金元帳）・仕入先元帳（買掛金元帳）・仕入帳・売上帳の問題を計7問追加し、`PracticePage`・`MockExamPage` 双方で出題・採点できる（仕入帳・売上帳は `issue`/`balance` を使わず `receipt` のみの帳簿で、列フィルタリングが単一グループでも正しく動くことを兼ねて確認）。設計の詳細は `docs/question_types_v1_design.md`（Phase 2）。先入先出法で複数ロットが並存する一般ケースはPhase 2.5として先送り。`test/ledger_question_view_test.dart` で商品有高帳（数量・単価・金額の9列）・現金出納帳（金額のみ3列）それぞれ全セル入力→正解判定までを検証
 - `yourwish_kentei` v0.4.0では `LevelConfig.subjectQuestionCounts`（科目別の出題数配分）も追加された（別PR）。簿記3級の大問別出題数に使える
 - 推し・コイン・衣装・学習体験の「型」は共通仕様（`app_common_kit` v0.2.0）を適用可能だが、簿記固有の学習体験の「型」9部品はまだ `yourwish_kentei` 側に実装されていない
