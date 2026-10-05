@@ -23,7 +23,12 @@ void main() {
     for (final q in parsed.questions) {
       expect(
         q.type,
-        anyOf(QuestionType.journal, QuestionType.choice, QuestionType.worksheet),
+        anyOf(
+          QuestionType.journal,
+          QuestionType.choice,
+          QuestionType.worksheet,
+          QuestionType.ledger,
+        ),
       );
     }
   });

@@ -5,6 +5,7 @@ import 'package:flutter/services.dart' show rootBundle;
 import 'package:yourwish_kentei/yourwish_kentei.dart';
 
 import '../journal_input/journal_question_view.dart';
+import '../ledger_input/ledger_question_view.dart';
 import '../progress/progress_store.dart';
 import '../worksheet_input/worksheet_question_view.dart';
 import 'choice_question_view.dart';
@@ -149,6 +150,18 @@ class _SessionBodyState extends State<_SessionBody> {
           explanation: current.explanation,
           onAnswered: (result, cells) {
             session.answerWorksheet(cells);
+            _recordProgress(current.qid, current.subjectId, correct: result.isCorrect);
+          },
+          onNext: () => setState(() {}),
+        );
+      case QuestionType.ledger:
+        return LedgerQuestionView(
+          key: ValueKey(current.qid),
+          prompt: current.prompt,
+          correctAnswer: current.ledgerAnswer!,
+          explanation: current.explanation,
+          onAnswered: (result, cells) {
+            session.answerLedger(cells);
             _recordProgress(current.qid, current.subjectId, correct: result.isCorrect);
           },
           onNext: () => setState(() {}),

@@ -6,6 +6,7 @@ import 'package:flutter/services.dart' show rootBundle;
 import 'package:yourwish_kentei/yourwish_kentei.dart';
 
 import '../journal_input/journal_question_view.dart';
+import '../ledger_input/ledger_question_view.dart';
 import '../practice/choice_question_view.dart';
 import '../progress/progress_store.dart';
 import '../worksheet_input/worksheet_question_view.dart';
@@ -132,6 +133,8 @@ class _MockExamBodyState extends State<_MockExamBody> {
 
   void _onWorksheetAnswered(String qid, List<WorksheetCell> cells) => _answers[qid] = cells;
 
+  void _onLedgerAnswered(String qid, List<LedgerCell> cells) => _answers[qid] = cells;
+
   void _next() {
     if (_index + 1 >= _questions.length) {
       _finish();
@@ -179,6 +182,10 @@ class _MockExamBodyState extends State<_MockExamBody> {
         final expected = q.worksheetAnswer;
         if (expected == null || answer is! List<WorksheetCell>) return false;
         return judgeWorksheet(expected, answer).isCorrect;
+      case QuestionType.ledger:
+        final expected = q.ledgerAnswer;
+        if (expected == null || answer is! List<LedgerCell>) return false;
+        return judgeLedger(expected, answer).isCorrect;
     }
   }
 
@@ -201,6 +208,7 @@ class _MockExamBodyState extends State<_MockExamBody> {
           onJournalAnswered: _onJournalAnswered,
           onChoiceAnswered: _onChoiceAnswered,
           onWorksheetAnswered: _onWorksheetAnswered,
+          onLedgerAnswered: _onLedgerAnswered,
           onNext: _next,
         );
       case _MockExamStage.result:
@@ -275,6 +283,7 @@ class _MockExamRunningView extends StatelessWidget {
     required this.onJournalAnswered,
     required this.onChoiceAnswered,
     required this.onWorksheetAnswered,
+    required this.onLedgerAnswered,
     required this.onNext,
   });
 
@@ -285,6 +294,7 @@ class _MockExamRunningView extends StatelessWidget {
   final void Function(String qid, List<JournalLine> lines) onJournalAnswered;
   final void Function(String qid, int selectedIndex) onChoiceAnswered;
   final void Function(String qid, List<WorksheetCell> cells) onWorksheetAnswered;
+  final void Function(String qid, List<LedgerCell> cells) onLedgerAnswered;
   final VoidCallback onNext;
 
   String get _timeLabel {
@@ -346,6 +356,15 @@ class _MockExamRunningView extends StatelessWidget {
           correctAnswer: question.worksheetAnswer!,
           revealResult: false,
           onAnswered: (_, cells) => onWorksheetAnswered(question.qid, cells),
+          onNext: onNext,
+        );
+      case QuestionType.ledger:
+        return LedgerQuestionView(
+          key: ValueKey(question.qid),
+          prompt: question.prompt,
+          correctAnswer: question.ledgerAnswer!,
+          revealResult: false,
+          onAnswered: (_, cells) => onLedgerAnswered(question.qid, cells),
           onNext: onNext,
         );
     }
