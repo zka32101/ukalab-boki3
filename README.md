@@ -36,6 +36,18 @@ CI上でタグを作成・pushできる。`yourwish_kentei` は他プロジェ�
 - 「模擬」タブから、本試験形式（`level3_from_2027_04`：15問・60分・合格ライン総合70%、科目別出題数は仕訳10/帳簿伝票3/決算2）で1回通しで解く模擬試験モード `lib/mock_exam/mock_exam_page.dart` を実装。本試験と同じく解答中は正誤を表示せず、全問解答後に `yourwish_kentei` の `pickMockExamQuestions`・`scoreMockExam` でまとめて採点し、総合点・科目別得点・合否を表示する。`JournalQuestionView`・`ChoiceQuestionView`・`WorksheetQuestionView` に `revealResult: false` を追加し、模擬試験では即答で正誤を見せずに次の問題へ進めるようにした。`test/mock_exam_page_test.dart` で開始〜全15問解答〜結果表示までを検証
 - `PracticePage`（「問題を練習する（問題集）」）の結果画面に「間違えたN問を復習する」ボタンを追加。`PracticeSession.records` から不正解だった qid を集め、`PracticePage(restrictToQids: ...)` でその問題だけに絞った復習セッションを開く（`test/practice_page_review_test.dart` で検証）
 - 演習・模擬試験の解答を `lib/progress/progress_store.dart`（`SharedPreferences` による端末内保存）に記録し、ホーム画面に科目別の正答率カード `lib/progress/progress_summary_card.dart` を表示するようにした。正答率70%未満の科目は「苦手科目」として警告アイコン付きで強調する。`test/progress_summary_test.dart`・`test/progress_summary_card_empty_test.dart`・`test/progress_summary_card_filled_test.dart` で検証
+- 第2問の伝票記入（入金・出金・振替伝票）を、実際の伝票の見た目で再現する専用UI `lib/voucher_input/`
+  （`VoucherQuestionView`）を追加。新しい `QuestionType` は増やさず、既存の `journal` 型データを
+  そのまま使う（`topicId` が `voucher_payment`/`voucher_receipt`/`voucher_transfer` の問題だけ
+  `PracticePage`・`MockExamPage` 側で判定して切り替える）。入金伝票・出金伝票は、現金側が伝票の
+  種類から自明（入金伝票は借方が現金、出金伝票は貸方が現金）なため、実物の伝票と同じく相手科目・
+  金額の2項目だけを入力させる簡易フォームにし、現金側は自動的に補って通常の仕訳判定（`judgeJournal`）
+  にかける。振替伝票は現金の受け払いを伴わないため、既存の `JournalQuestionView`（借方・貸方の
+  表形式入力）をそのまま使い、見た目だけ伝票風の枠（`VoucherSlipFrame`）に入れる。配色は実物の
+  伝票の慣習（入金伝票は赤系、出金伝票は青系、振替伝票は黒系の用紙）に合わせた。
+  `test/voucher_question_view_test.dart` で3種類とも検証済み。`flutter build web`・ローカルの
+  CanvasKitアセット・Playwrightで実機のレンダリングも確認（3種類の配色・簡易フォーム・通常の
+  仕訳テーブルがそれぞれ正しく表示され、console error 0件）
 - 第2問の補助簿記入（商品有高帳・現金出納帳など）向けに `QuestionType.ledger`（`yourwish_kentei` v0.12.0）を実装。`LedgerCell`（記入行×列グループ〈受入/払出/残高〉×項目〈数量/単価/金額〉）の `givenCells`/`blankCells` を `judgeLedger` でセル単位に採点する、`worksheet` 型と同じ設計パターン。入力UIは `lib/ledger_input/`（`WorksheetTable` と対になる構成、`LedgerTable`・`LedgerQuestionView` など）。商品有高帳（移動平均法）・現金出納帳・得意先元帳（売掛金元帳）・仕入先元帳（買掛金元帳）・仕入帳・売上帳の問題を計7問追加し、`PracticePage`・`MockExamPage` 双方で出題・採点できる（仕入帳・売上帳は `issue`/`balance` を使わず `receipt` のみの帳簿で、列フィルタリングが単一グループでも正しく動くことを兼ねて確認）。設計の詳細は `docs/question_types_v1_design.md`（Phase 2）。先入先出法で複数ロットが並存する一般ケースはPhase 2.5として先送り。`test/ledger_question_view_test.dart` で商品有高帳（数量・単価・金額の9列）・現金出納帳（金額のみ3列）それぞれ全セル入力→正解判定までを検証
 - `yourwish_kentei` v0.4.0では `LevelConfig.subjectQuestionCounts`（科目別の出題数配分）も追加された（別PR）。簿記3級の大問別出題数に使える
 - 推し・コイン・衣装・学習体験の「型」は共通仕様（`app_common_kit` v0.2.0）を適用可能だが、簿記固有の学習体験の「型」9部品はまだ `yourwish_kentei` 側に実装されていない

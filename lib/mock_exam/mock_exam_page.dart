@@ -9,6 +9,8 @@ import '../journal_input/journal_question_view.dart';
 import '../ledger_input/ledger_question_view.dart';
 import '../practice/choice_question_view.dart';
 import '../progress/progress_store.dart';
+import '../voucher_input/voucher_kind.dart';
+import '../voucher_input/voucher_question_view.dart';
 import '../worksheet_input/worksheet_question_view.dart';
 
 /// 本試験の形式（出題数・制限時間・配点）で1回通しで解き、最後にまとめて
@@ -331,6 +333,18 @@ class _MockExamRunningView extends StatelessWidget {
   Widget _buildQuestion(BuildContext context) {
     switch (question.type) {
       case QuestionType.journal:
+        final voucherKind = voucherKindOfTopic(question.topicId);
+        if (voucherKind != null) {
+          return VoucherQuestionView(
+            key: ValueKey(question.qid),
+            prompt: question.prompt,
+            correctAnswer: question.journalAnswer!,
+            kind: voucherKind,
+            revealResult: false,
+            onAnswered: (_, lines) => onJournalAnswered(question.qid, lines),
+            onNext: onNext,
+          );
+        }
         return JournalQuestionView(
           key: ValueKey(question.qid),
           prompt: question.prompt,

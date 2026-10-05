@@ -7,6 +7,8 @@ import 'package:yourwish_kentei/yourwish_kentei.dart';
 import '../journal_input/journal_question_view.dart';
 import '../ledger_input/ledger_question_view.dart';
 import '../progress/progress_store.dart';
+import '../voucher_input/voucher_kind.dart';
+import '../voucher_input/voucher_question_view.dart';
 import '../worksheet_input/worksheet_question_view.dart';
 import 'choice_question_view.dart';
 
@@ -118,15 +120,28 @@ class _SessionBodyState extends State<_SessionBody> {
   Widget _buildQuestion(Question current, PracticeSession session) {
     switch (current.type) {
       case QuestionType.journal:
+        final voucherKind = voucherKindOfTopic(current.topicId);
+        void onJournalAnswered(JournalJudgeResult result, List<JournalLine> lines) {
+          session.answerJournal(lines);
+          _recordProgress(current.qid, current.subjectId, correct: result.isCorrect);
+        }
+        if (voucherKind != null) {
+          return VoucherQuestionView(
+            key: ValueKey(current.qid),
+            prompt: current.prompt,
+            correctAnswer: current.journalAnswer!,
+            kind: voucherKind,
+            explanation: current.explanation,
+            onAnswered: onJournalAnswered,
+            onNext: () => setState(() {}),
+          );
+        }
         return JournalQuestionView(
           key: ValueKey(current.qid),
           prompt: current.prompt,
           correctAnswer: current.journalAnswer!,
           explanation: current.explanation,
-          onAnswered: (result, lines) {
-            session.answerJournal(lines);
-            _recordProgress(current.qid, current.subjectId, correct: result.isCorrect);
-          },
+          onAnswered: onJournalAnswered,
           onNext: () => setState(() {}),
         );
       case QuestionType.choice:
