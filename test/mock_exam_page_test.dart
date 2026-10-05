@@ -4,6 +4,7 @@ import 'package:flutter_test/flutter_test.dart';
 
 import 'package:ukalab_boki3/mock_exam/mock_exam_page.dart';
 import 'package:ukalab_boki3/practice/choice_question_view.dart';
+import 'package:ukalab_boki3/progress/progress_store.dart';
 
 void main() {
   testWidgets('模擬試験を開始し、全問解答すると結果画面が表示される', (tester) async {
@@ -11,7 +12,9 @@ void main() {
     // 制限時間のカウントダウン（Timer.periodic）が動き続けるため、
     // pumpAndSettle ではなく有限の pump を使う。
     await tester.pumpWidget(
-      const ProviderScope(child: MaterialApp(home: MockExamPage())),
+      ProviderScope(
+        child: MaterialApp(home: MockExamPage(progressStore: InMemoryProgressStore())),
+      ),
     );
     await tester.runAsync(() async {
       await Future<void>.delayed(const Duration(milliseconds: 50));

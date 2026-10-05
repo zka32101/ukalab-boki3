@@ -6,14 +6,18 @@ import 'package:flutter/services.dart' show rootBundle;
 import 'package:yourwish_kentei/yourwish_kentei.dart';
 
 import '../journal_input/journal_question_view.dart';
-import '../worksheet_input/worksheet_question_view.dart';
 import '../practice/choice_question_view.dart';
+import '../progress/progress_store.dart';
+import '../worksheet_input/worksheet_question_view.dart';
 
 /// 本試験の形式（出題数・制限時間・配点）で1回通しで解き、最後にまとめて
 /// 採点する模擬試験モード。[PracticePage]（`lib/practice/`）と異なり、
 /// 解答中は正誤を表示しない（本試験では分からないため）。
 class MockExamPage extends StatefulWidget {
-  const MockExamPage({super.key});
+  const MockExamPage({super.key, required this.progressStore});
+
+  /// 解答記録の保存先（ホーム画面の科目別正答率に反映される）。
+  final ProgressStore progressStore;
 
   @override
   State<MockExamPage> createState() => _MockExamPageState();
@@ -60,7 +64,7 @@ class _MockExamPageState extends State<MockExamPage> {
             if (snapshot.hasError) {
               return Center(child: Text('読み込みに失敗しました: ${snapshot.error}'));
             }
-            return _MockExamBody(data: snapshot.data!);
+            return _MockExamBody(data: snapshot.data!, progressStore: widget.progressStore);
           },
         ),
       ),
@@ -79,9 +83,10 @@ class _MockExamData {
 enum _MockExamStage { intro, running, result }
 
 class _MockExamBody extends StatefulWidget {
-  const _MockExamBody({required this.data});
+  const _MockExamBody({required this.data, required this.progressStore});
 
   final _MockExamData data;
+  final ProgressStore progressStore;
 
   @override
   State<_MockExamBody> createState() => _MockExamBodyState();
@@ -142,10 +147,39 @@ class _MockExamBodyState extends State<_MockExamBody> {
       answers: _answers,
       rule: _level.passRule,
     );
+    for (final q in _questions) {
+      unawaited(
+        widget.progressStore.addRecord(
+          ProgressRecord(
+            qid: q.qid,
+            subjectId: q.subjectId,
+            correct: _isCorrect(q, _answers[q.qid]),
+            at: DateTime.now(),
+          ),
+        ),
+      );
+    }
     setState(() {
       _result = result;
       _stage = _MockExamStage.result;
     });
+  }
+
+  /// `yourwish_kentei` の `scoreMockExam` が内部で使う正誤判定と同じロジック
+  /// （非公開のため進捗記録用にここで再実装）。
+  bool _isCorrect(Question q, Object? answer) {
+    switch (q.type) {
+      case QuestionType.choice:
+        return answer is int && answer == q.answerIndex;
+      case QuestionType.journal:
+        final expected = q.journalAnswer;
+        if (expected == null || answer is! List<JournalLine>) return false;
+        return judgeJournal(expected, answer).isCorrect;
+      case QuestionType.worksheet:
+        final expected = q.worksheetAnswer;
+        if (expected == null || answer is! List<WorksheetCell>) return false;
+        return judgeWorksheet(expected, answer).isCorrect;
+    }
   }
 
   @override

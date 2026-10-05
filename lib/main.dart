@@ -6,6 +6,11 @@ import 'package:yourwish_kentei/yourwish_kentei.dart';
 import 'journal_input/journal_question_view.dart';
 import 'mock_exam/mock_exam_page.dart';
 import 'practice/practice_page.dart';
+import 'progress/progress_store.dart';
+import 'progress/progress_summary_card.dart';
+
+/// 演習・模擬試験の解答記録の保存先。端末内保存（アプリ全体で共有）。
+final ProgressStore appProgressStore = SharedPreferencesProgressStore();
 
 void main() {
   runApp(const ProviderScope(child: UkalabBoki3App()));
@@ -41,7 +46,16 @@ class _HomePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Center(child: Text('うかラボ 簿記3級'));
+    return ListView(
+      children: [
+        const SizedBox(height: 24),
+        Center(
+          child: Text('うかラボ 簿記3級', style: Theme.of(context).textTheme.titleLarge),
+        ),
+        const SizedBox(height: 16),
+        ProgressSummaryCard(store: appProgressStore),
+      ],
+    );
   }
 }
 
@@ -64,7 +78,7 @@ class _LearnPage extends StatelessWidget {
           const SizedBox(height: 12),
           OutlinedButton(
             onPressed: () => Navigator.of(context).push(
-              MaterialPageRoute(builder: (_) => const PracticePage()),
+              MaterialPageRoute(builder: (_) => PracticePage(progressStore: appProgressStore)),
             ),
             child: const Text('問題を練習する（問題集）'),
           ),
@@ -107,7 +121,7 @@ class _MockExamTab extends StatelessWidget {
     return Center(
       child: FilledButton(
         onPressed: () => Navigator.of(context).push(
-          MaterialPageRoute(builder: (_) => const MockExamPage()),
+          MaterialPageRoute(builder: (_) => MockExamPage(progressStore: appProgressStore)),
         ),
         child: const Text('模擬試験を始める'),
       ),
