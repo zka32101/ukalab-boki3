@@ -67,17 +67,97 @@ class WorksheetAnswer {
 2. UI側（`lib/journal_input/journal_input_table.dart` 相当）は列数が多く（最大8列）、スマホ画面での
    表示方法を別途検討する必要がある（横スクロール、列の折りたたみなど）
 
-## Phase 2: 補助簿の記入（先送り）
+## Phase 2: 補助簿の記入（設計）
 
-商品有高帳（先入先出法・移動平均法）、現金出納帳、仕入帳・売上帳など。行が時系列の取引、列が
-受入・払出・残高（数量・単価・金額）という構造で、精算表ともまた違う形式。今回は設計を保留し、
-Phase 1（精算表）の実装・実機確認を終えてから着手する。
+対象は商品有高帳（先入先出法・移動平均法）、現金出納帳、当座預金出納帳、売掛金元帳（得意先元帳）、
+買掛金元帳（仕入先元帳）、仕入帳・売上帳など。いずれも「行＝時系列の取引、列＝受入／払出／残高
+（＋数量・単価・金額）」という共通構造を持つ帳簿で、勘定科目×列という2次元の `worksheet` 型とは
+別の形（行×列グループ×項目という3次元）になる。
+
+### 対象の絞り込み方針
+
+補助簿は帳簿ごとに列構成が異なる（商品有高帳は数量・単価・金額の3項目、現金出納帳は金額のみ）が、
+「行＝取引、列グループ＝受入／払出／残高、項目＝数量・単価・金額（使わない項目は省略可）」という
+共通モデルで表現できる。数量・単価を使わない帳簿（現金出納帳・当座預金出納帳・売掛金元帳・買掛金
+元帳）は金額（`amount`）のみのセルで表現し、商品有高帳は3項目をすべて使う形にする。
+
+**先入先出法 vs 移動平均法**: 先入先出法は、仕入のたびに単価の異なるロットが残高欄に並存し、1つの
+取引が複数の記入行にまたがることがある（例: 残高に「10個@100円」「20個@120円」の2行が並ぶ）。
+移動平均法は残高が常に単一の平均単価になるため、1取引＝1記入行で完結しモデルが単純になる。本設計は
+まず移動平均法、または「仕入れた分を使い切ってから次の仕入をする」単純化シナリオの先入先出法
+（残高が常に単一ロットになる）を対象にする。複数ロットが並存する一般の先入先出法は、1取引が複数
+記入行を持てるようにする拡張が必要なため、**Phase 2.5として先送り**する。
+
+### データモデル案（yourwish_kentei 側に追加）
+
+```dart
+/// 補助簿の列グループ。
+enum LedgerColumnGroup { receipt, issue, balance }
+
+/// 補助簿の項目。数量・単価を使わない帳簿（現金出納帳など）は amount のみ使う。
+enum LedgerField { quantity, unitPrice, amount }
+
+/// 1セル（行 × 列グループ × 項目）の値。
+class LedgerCell {
+  final int rowIndex;           // 何行目か（0始まり）
+  final LedgerColumnGroup group;
+  final LedgerField field;
+  final int value;
+}
+
+/// 1記入行の固定情報（日付・摘要）。同一取引が複数行にまたがる場合、
+/// 2行目以降は date/description を空文字にする（実際の帳簿の見た目を踏襲）。
+class LedgerRowMeta {
+  final int rowIndex;
+  final String date;         // 例: "4/1"
+  final String description;  // 例: "仕入れ"
+}
+
+/// 補助簿問題の正解。
+class LedgerAnswer {
+  final List<LedgerRowMeta> rows;
+  /// 最初から埋まっているセル（前月繰越など、問題文で与える値）。
+  final List<LedgerCell> givenCells;
+  /// ユーザーが埋めるべき正解セル。
+  final List<LedgerCell> blankCells;
+}
+```
+
+`WorksheetCell` の `account × column` に対して `LedgerCell` は `rowIndex × group × field` が
+セルの一意な位置になる点以外は、`WorksheetAnswer`（givenCells/blankCells に分ける設計）と
+同じパターンを踏襲する。
+
+### 採点方針
+
+`judgeWorksheet` と同じ考え方で `judgeLedger(LedgerAnswer, List<LedgerCell> userInput)` を作る。
+セル単位（`rowIndex × group × field`）で正誤判定（correct/wrongAmount/missing/extra）し、
+`WorksheetJudgeResult` と同形の `LedgerJudgeResult` を返す。
+
+### UI設計の方向性
+
+`WorksheetTable`（`lib/worksheet_input/`）と同様、横スクロール可能な `Table` ＋ セル選択＋テンキー
+入力の構成を踏襲する。列数は「受入・払出・残高」×「数量・単価・金額」で最大9列になりうるが、
+現金出納帳など金額のみの帳簿では3列（収入・支出・残高）まで減る。`WorksheetColumn` を実際に使う
+列だけ表示したのと同様、`LedgerColumnGroup × LedgerField` の組み合わせのうち実際に使うものだけを
+列として表示する。
+
+同一取引が複数記入行にまたがるケース（前述のPhase 2.5）では、`LedgerRowMeta.date`/`description` が
+空文字の行はヘッダー列（日付・摘要）を空欄表示する想定。
+
+### 未決事項
+
+1. 商品有高帳の「摘要」欄の表記（「前月繰越」「仕入れ」「売上げ」等）をどこまで自由記述にするか、
+   あるいは固定の選択肢にするか（自由記述は採点対象にしない前提で、`LedgerRowMeta` は常に固定表示）
+2. 部分点の扱い（`WorksheetJudgeResult` 同様、埋まったセル数 / 全セル数で計算する想定）
+3. 複数ロットが並存する一般の先入先出法（Phase 2.5）に対応する場合の行モデルの拡張方法
 
 ## 実装順序の提案
 
-1. `yourwish_kentei` に `QuestionType.worksheet` を追加（`judgeWorksheet` 含む、PR）
-2. `ukalab-boki3` 側に精算表入力UI（表形式、Phase 1の未決事項1を解決してから）
-3. 第3問（決算）の問題データ作成
-4. 第2問の `journal` 型応用問題（伝票・証ひょう）のデータ作成（コード変更不要なのですぐ着手可能）
-5. 第2問の理論（choice型）問題データ作成（コード変更不要）
-6. 補助簿（Phase 2）は別途設計してから
+1. `yourwish_kentei` に `QuestionType.worksheet` を追加（`judgeWorksheet` 含む、PR） — 完了
+2. `ukalab-boki3` 側に精算表入力UI（表形式） — 完了
+3. 第3問（決算）の問題データ作成 — 完了
+4. 第2問の `journal` 型応用問題（伝票・証ひょう）のデータ作成 — 完了
+5. 第2問の理論（choice型）問題データ作成 — 完了
+6. `yourwish_kentei` に `QuestionType.ledger` を追加（`judgeLedger` 含む、Phase 2設計に基づく）
+7. `ukalab-boki3` 側に補助簿入力UI（`LedgerTable`、`WorksheetTable` と同パターン）
+8. 商品有高帳（移動平均法）・現金出納帳などの問題データ作成
