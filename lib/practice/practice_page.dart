@@ -11,7 +11,11 @@ import 'choice_question_view.dart';
 /// （出典必須・貸借一致など）は `test/questions_data_test.dart` で
 /// 別途検証済みのため、ここではロード失敗のみハンドリングする。
 class PracticePage extends StatefulWidget {
-  const PracticePage({super.key});
+  const PracticePage({super.key, this.restrictToQids});
+
+  /// 非null なら、全問題の中からこの qid 集合に含まれる問題だけを出題する
+  /// （「間違えた問題を復習する」から開くとき用）。
+  final Set<String>? restrictToQids;
 
   @override
   State<PracticePage> createState() => _PracticePageState();
@@ -32,13 +36,17 @@ class _PracticePageState extends State<PracticePage> {
     if (parsed.issues.isNotEmpty) {
       throw StateError('問題データの読み込みに失敗しました: ${parsed.issues}');
     }
-    return PracticeSession(pool: parsed.questions, size: parsed.questions.length);
+    final restrict = widget.restrictToQids;
+    final pool = restrict == null
+        ? parsed.questions
+        : parsed.questions.where((q) => restrict.contains(q.qid)).toList();
+    return PracticeSession(pool: pool, size: pool.length);
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('問題を練習する')),
+      appBar: AppBar(title: Text(widget.restrictToQids == null ? '問題を練習する' : '間違えた問題を復習する')),
       body: SafeArea(
         child: FutureBuilder<PracticeSession>(
           future: _sessionFuture,
@@ -134,6 +142,10 @@ class _ResultView extends StatelessWidget {
   Widget build(BuildContext context) {
     final total = session.questions.length;
     final correct = session.correctCount;
+    final wrongQids = {
+      for (final r in session.records)
+        if (!r.correct) r.qid,
+    };
     return Center(
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -142,7 +154,17 @@ class _ResultView extends StatelessWidget {
           const SizedBox(height: 12),
           Text('正解 $correct / $total問', style: Theme.of(context).textTheme.titleLarge),
           const SizedBox(height: 24),
-          FilledButton(
+          if (wrongQids.isNotEmpty)
+            FilledButton(
+              onPressed: () => Navigator.of(context).pushReplacement(
+                MaterialPageRoute(
+                  builder: (_) => PracticePage(restrictToQids: wrongQids),
+                ),
+              ),
+              child: Text('間違えた${wrongQids.length}問を復習する'),
+            ),
+          const SizedBox(height: 12),
+          OutlinedButton(
             onPressed: () => Navigator.of(context).pop(),
             child: const Text('戻る'),
           ),
