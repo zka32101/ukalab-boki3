@@ -42,5 +42,22 @@ void main() {
     // 結果画面：総合得点と合否メッセージが表示される。
     expect(find.textContaining('点'), findsWidgets);
     expect(find.byType(FilledButton), findsWidgets);
+
+    // 空欄のまま解答したので全問不正解のはず。「間違えた問題を復習する」から
+    // 復習セッション（PracticePage）に入れる。
+    final reviewButton = find.textContaining('問を復習する');
+    expect(reviewButton, findsOneWidget);
+    await tester.tap(reviewButton);
+    await tester.pump();
+    await tester.runAsync(() async {
+      await Future<void>.delayed(const Duration(milliseconds: 50));
+    });
+    for (var i = 0; i < 10 && find.byType(CircularProgressIndicator).evaluate().isNotEmpty; i++) {
+      await tester.pump(const Duration(milliseconds: 100));
+    }
+    await tester.pump();
+
+    expect(find.text('間違えた問題を復習する'), findsOneWidget);
+    expect(find.textContaining('問目'), findsOneWidget);
   });
 }

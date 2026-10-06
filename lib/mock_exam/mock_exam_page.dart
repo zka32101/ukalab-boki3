@@ -9,6 +9,7 @@ import '../evidence_input/evidence_question_view.dart';
 import '../journal_input/journal_question_view.dart';
 import '../ledger_input/ledger_question_view.dart';
 import '../practice/choice_question_view.dart';
+import '../practice/practice_page.dart';
 import '../progress/progress_revision.dart';
 import '../progress/progress_store.dart';
 import '../voucher_input/voucher_kind.dart';
@@ -219,7 +220,15 @@ class _MockExamBodyState extends State<_MockExamBody> {
           onNext: _next,
         );
       case _MockExamStage.result:
-        return _MockExamResultView(exam: widget.data.exam, result: _result!);
+        return _MockExamResultView(
+          exam: widget.data.exam,
+          result: _result!,
+          wrongQids: {
+            for (final q in _questions)
+              if (!_isCorrect(q, _answers[q.qid])) q.qid,
+          },
+          progressStore: widget.progressStore,
+        );
     }
   }
 }
@@ -401,10 +410,20 @@ class _MockExamRunningView extends StatelessWidget {
 }
 
 class _MockExamResultView extends StatelessWidget {
-  const _MockExamResultView({required this.exam, required this.result});
+  const _MockExamResultView({
+    required this.exam,
+    required this.result,
+    required this.wrongQids,
+    required this.progressStore,
+  });
 
   final ExamConfig exam;
   final MockExamResult result;
+
+  /// 不正解だった問題の qid。「間違えた問題を復習する」から
+  /// `PracticePage(restrictToQids: ...)` を開くのに使う。
+  final Set<String> wrongQids;
+  final ProgressStore progressStore;
 
   @override
   Widget build(BuildContext context) {
@@ -454,7 +473,17 @@ class _MockExamResultView extends StatelessWidget {
               ),
             ),
         const SizedBox(height: 32),
-        FilledButton(
+        if (wrongQids.isNotEmpty)
+          FilledButton(
+            onPressed: () => Navigator.of(context).push(
+              MaterialPageRoute(
+                builder: (_) => PracticePage(progressStore: progressStore, restrictToQids: wrongQids),
+              ),
+            ),
+            child: Text('間違えた${wrongQids.length}問を復習する'),
+          ),
+        const SizedBox(height: 12),
+        OutlinedButton(
           onPressed: () => Navigator.of(context).pop(),
           child: const Text('戻る'),
         ),

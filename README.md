@@ -89,6 +89,11 @@ CI上でタグを作成・pushできる。`yourwish_kentei` は他プロジェ�
   静的な画面しかフルアプリ経由でテストしていなかったため表面化していなかった）。
   `flutter build web` + Playwrightで実機確認（科目選択→該当科目のみ出題されることを確認、
   console error 0件）
+- 模擬試験の結果画面（`MockExamPage` の `_MockExamResultView`）に「間違えた問題を復習する」ボタンを
+  追加。`PracticePage._ResultView` と同じパターンで、不正解だった qid を集めて
+  `PracticePage(restrictToQids: ...)` の復習セッションを開く（従来は模擬試験後にそのまま復習に
+  入る導線がなく、「記録」タブの間隔反復に頼るしかなかった）。`test/mock_exam_page_test.dart` に
+  復習ボタンのタップ〜復習セッション開始までの検証を追加
 - 第2問の伝票記入（入金・出金・振替伝票）を、実際の伝票の見た目で再現する専用UI `lib/voucher_input/`
   （`VoucherQuestionView`）を追加。新しい `QuestionType` は増やさず、既存の `journal` 型データを
   そのまま使う（`topicId` が `voucher_payment`/`voucher_receipt`/`voucher_transfer` の問題だけ
