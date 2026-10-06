@@ -9,6 +9,7 @@ import '../evidence_input/evidence_question_view.dart';
 import '../journal_input/journal_question_view.dart';
 import '../ledger_input/ledger_question_view.dart';
 import '../practice/choice_question_view.dart';
+import '../progress/progress_revision.dart';
 import '../progress/progress_store.dart';
 import '../voucher_input/voucher_kind.dart';
 import '../voucher_input/voucher_question_view.dart';
@@ -146,25 +147,28 @@ class _MockExamBodyState extends State<_MockExamBody> {
     }
   }
 
-  void _finish() {
+  Future<void> _finish() async {
     _timer?.cancel();
     final result = scoreMockExam(
       questions: _questions,
       answers: _answers,
       rule: _level.passRule,
     );
+    // `SharedPreferencesProgressStore.addRecord` は読み込み→追記→書き込みを
+    // 行うため、並行に呼ぶと互いの書き込みを上書きして記録が失われる。
+    // 出題数ぶん（15件程度）を順番に await する。
     for (final q in _questions) {
-      unawaited(
-        widget.progressStore.addRecord(
-          ProgressRecord(
-            qid: q.qid,
-            subjectId: q.subjectId,
-            correct: _isCorrect(q, _answers[q.qid]),
-            at: DateTime.now(),
-          ),
+      await widget.progressStore.addRecord(
+        ProgressRecord(
+          qid: q.qid,
+          subjectId: q.subjectId,
+          correct: _isCorrect(q, _answers[q.qid]),
+          at: DateTime.now(),
         ),
       );
     }
+    progressRevision.value++;
+    if (!mounted) return;
     setState(() {
       _result = result;
       _stage = _MockExamStage.result;

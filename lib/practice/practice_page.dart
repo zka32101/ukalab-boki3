@@ -7,6 +7,7 @@ import 'package:yourwish_kentei/yourwish_kentei.dart';
 import '../evidence_input/evidence_question_view.dart';
 import '../journal_input/journal_question_view.dart';
 import '../ledger_input/ledger_question_view.dart';
+import '../progress/progress_revision.dart';
 import '../progress/progress_store.dart';
 import '../progress/review_priority.dart';
 import '../voucher_input/voucher_kind.dart';
@@ -108,9 +109,11 @@ class _SessionBody extends StatefulWidget {
 class _SessionBodyState extends State<_SessionBody> {
   void _recordProgress(String qid, String subjectId, {required bool correct}) {
     unawaited(
-      widget.progressStore.addRecord(
-        ProgressRecord(qid: qid, subjectId: subjectId, correct: correct, at: DateTime.now()),
-      ),
+      widget.progressStore
+          .addRecord(
+            ProgressRecord(qid: qid, subjectId: subjectId, correct: correct, at: DateTime.now()),
+          )
+          .then((_) => progressRevision.value++),
     );
   }
 

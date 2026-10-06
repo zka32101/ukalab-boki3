@@ -8,6 +8,7 @@ import 'mock_exam/mock_exam_page.dart';
 import 'practice/practice_page.dart';
 import 'progress/progress_store.dart';
 import 'progress/progress_summary_card.dart';
+import 'records/records_page.dart';
 
 /// 演習・模擬試験の解答記録の保存先。端末内保存（アプリ全体で共有）。
 final ProgressStore appProgressStore = SharedPreferencesProgressStore();
@@ -29,12 +30,12 @@ class UkalabBoki3App extends StatelessWidget {
       theme: UkalabTheme.light(field: _field, cert: _cert),
       darkTheme: UkalabTheme.dark(field: _field, cert: _cert),
       home: UkalabShell(
-        pages: const [
-          _HomePage(),
-          _LearnPage(),
-          _MockExamTab(),
-          _PlaceholderPage(label: '記録'),
-          _AboutPage(),
+        pages: [
+          const _HomePage(),
+          const _LearnPage(),
+          const _MockExamTab(),
+          RecordsPage(progressStore: appProgressStore),
+          const _AboutPage(),
         ],
       ),
     );
@@ -126,17 +127,6 @@ class _MockExamTab extends StatelessWidget {
         child: const Text('模擬試験を始める'),
       ),
     );
-  }
-}
-
-class _PlaceholderPage extends StatelessWidget {
-  const _PlaceholderPage({required this.label});
-
-  final String label;
-
-  @override
-  Widget build(BuildContext context) {
-    return Center(child: Text('$label（準備中）'));
   }
 }
 

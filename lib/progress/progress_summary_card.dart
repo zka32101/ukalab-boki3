@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:yourwish_kentei/yourwish_kentei.dart';
 
+import 'progress_revision.dart';
 import 'progress_store.dart';
 import 'progress_summary.dart';
 
@@ -28,6 +29,21 @@ class _ProgressSummaryCardState extends State<ProgressSummaryCard> {
   void initState() {
     super.initState();
     _dataFuture = _load();
+    // ホームタブは `IndexedStack` で一度マウントされると破棄されないため、
+    // 他のタブで新しい解答記録が追加されても自動では再読み込みされない。
+    progressRevision.addListener(_onProgressChanged);
+  }
+
+  @override
+  void dispose() {
+    progressRevision.removeListener(_onProgressChanged);
+    super.dispose();
+  }
+
+  void _onProgressChanged() {
+    setState(() {
+      _dataFuture = _load();
+    });
   }
 
   Future<_ProgressCardData> _load() async {

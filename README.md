@@ -55,6 +55,21 @@ CI上でタグを作成・pushできる。`yourwish_kentei` は他プロジェ�
   たびに `PracticePage._loadSession()` で計算し、優先出題中の問題には「苦手な問題を復習中」の表示を
   出す。`test/review_priority_test.dart`（優先順位の計算ロジック）・
   `test/practice_page_review_priority_test.dart`（実際に先頭に出題されることを確認）で検証
+- 下部ナビの「記録」タブ（従来は `準備中` のプレースホルダー）を `lib/records/records_page.dart`
+  （`RecordsPage`）として実装。科目別正答率カード（ホーム画面と同じ `ProgressSummaryCard`）に加え、
+  間隔反復で復習待ちになっている問題の一覧と、まとめて復習セッションを開くボタンを表示する。
+  実装の過程で2つの不具合を発見・修正した。(1) 下部タブは `app_common_kit` の `UkalabShell` が
+  `IndexedStack` で管理しており、一度マウントされたタブは破棄・再ビルドされないため、起動時に
+  読み込んだデータのまま固定され、他のタブで新しい解答記録を追加しても自動的には反映されなかった
+  （`ProgressSummaryCard` も同じ不具合を抱えていたため合わせて修正）。`lib/progress/progress_revision.dart`
+  の `ValueNotifier<int>`（解答記録が追加されるたびに増える版数）をリッスンし、変化があれば
+  明示的に読み直す形で解決した。(2) 模擬試験の結果画面（`MockExamPage._finish()`）が出題数ぶん
+  （15件）の `addRecord` を `unawaited` で並行に呼んでいたため、`SharedPreferencesProgressStore`
+  の読み込み→追記→書き込みが競合し、ほとんどの記録が失われていた。`await` で順番に書き込む形に修正。
+  `test/records_page_empty_test.dart`・`test/records_page_review_test.dart`・
+  `test/records_page_live_update_test.dart`（タブを再マウントせずに自動更新されることを確認）で検証。
+  `flutter build web` + Playwrightで実機確認（記録タブを開いたまま演習で1問不正解にし、タブに
+  戻らず裏側のナビゲーションだけで正答率・復習待ち一覧が自動更新されることを確認、console error 0件）
 - 第2問の伝票記入（入金・出金・振替伝票）を、実際の伝票の見た目で再現する専用UI `lib/voucher_input/`
   （`VoucherQuestionView`）を追加。新しい `QuestionType` は増やさず、既存の `journal` 型データを
   そのまま使う（`topicId` が `voucher_payment`/`voucher_receipt`/`voucher_transfer` の問題だけ
