@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../progress/progress_revision.dart';
 import '../progress/progress_store.dart';
+import 'theme_mode_store.dart';
 
 /// 「設定」タブ。アプリの説明と、解答記録をリセットする機能を提供する。
 class SettingsPage extends StatelessWidget {
@@ -50,6 +51,33 @@ class SettingsPage extends StatelessWidget {
     return ListView(
       padding: const EdgeInsets.all(16),
       children: [
+        Text('表示', style: theme.textTheme.titleLarge),
+        const SizedBox(height: 12),
+        ValueListenableBuilder<ThemeMode>(
+          valueListenable: appThemeMode,
+          builder: (context, mode, _) => SegmentedButton<ThemeMode>(
+            segments: const [
+              ButtonSegment(
+                value: ThemeMode.light,
+                label: Text('ライト'),
+                icon: Icon(Icons.light_mode_outlined),
+              ),
+              ButtonSegment(
+                value: ThemeMode.dark,
+                label: Text('ダーク'),
+                icon: Icon(Icons.dark_mode_outlined),
+              ),
+              ButtonSegment(
+                value: ThemeMode.system,
+                label: Text('端末設定'),
+                icon: Icon(Icons.smartphone_outlined),
+              ),
+            ],
+            selected: {mode},
+            onSelectionChanged: (selected) => setThemeMode(selected.first),
+          ),
+        ),
+        const SizedBox(height: 32),
         Text('このアプリについて', style: theme.textTheme.titleLarge),
         const SizedBox(height: 12),
         const Text(

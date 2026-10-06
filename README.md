@@ -94,6 +94,16 @@ CI上でタグを作成・pushできる。`yourwish_kentei` は他プロジェ�
   `PracticePage(restrictToQids: ...)` の復習セッションを開く（従来は模擬試験後にそのまま復習に
   入る導線がなく、「記録」タブの間隔反復に頼るしかなかった）。`test/mock_exam_page_test.dart` に
   復習ボタンのタップ〜復習セッション開始までの検証を追加
+- 「設定」タブにライト／ダーク／端末設定の3択で表示モードを切り替える機能を追加。
+  `lib/settings/theme_mode_store.dart` の `ValueNotifier<ThemeMode>`（`appThemeMode`）を
+  `SharedPreferences` で永続化し、`MaterialApp` の `themeMode` に直接バインドする
+  （`MaterialApp` 自体がリスナーのため、`IndexedStack` でマウントされたままの他タブにも
+  選択直後に反映される）。起動時は `main()` で `loadSavedThemeMode()` を await してから
+  `runApp` するため、誤った配色が一瞬表示されるちらつきが起きない。
+  `test/theme_mode_test.dart` で検証（保存・復元・不正値のフォールバック・設定タブでの
+  切り替えでMaterialAppのthemeModeが変わること）。`flutter build web` + Playwrightで
+  実機確認（設定タブで「ダーク」を選ぶと即座に全体に反映され、他タブへ移動しても
+  維持されることを確認、console error 0件）
 - 第2問の伝票記入（入金・出金・振替伝票）を、実際の伝票の見た目で再現する専用UI `lib/voucher_input/`
   （`VoucherQuestionView`）を追加。新しい `QuestionType` は増やさず、既存の `journal` 型データを
   そのまま使う（`topicId` が `voucher_payment`/`voucher_receipt`/`voucher_transfer` の問題だけ
