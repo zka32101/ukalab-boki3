@@ -170,6 +170,11 @@ CI上でタグを作成・pushできる。`yourwish_kentei` は他プロジェ�
   （`accounts_receivable_ledger_return`・`accounts_payable_ledger_return`・`cash_book_capital`・
   `checking_account_book_variation`）。既存の `LedgerCell`（`receipt`/`issue`/`balance` グループ）の
   スキーマのまま表現できることを確認済み。先入先出法（複数ロット並存）は従来どおりPhase 2.5として先送り。
+- 第1〜2問向けのchoice型（定義・分類の知識問題）を4問追加（計31問）。既存の資産/負債分類問題とは異なる科目
+  （前受収益・電子記録債権など経過勘定・電子記録債権等）、税抜方式の消費税の仮受消費税の分類、費用の勘定の
+  増減ルール（資産と同じ借方増加）を取り上げ、既存トピックと重複しないよう設計した
+  （`classification_accrued_accounts`・`classification_electronic_records`・
+  `consumption_tax_account_nature`・`account_rule_expense`）。
 
 ## 2027年4月の配点変更
 
