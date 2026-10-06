@@ -70,6 +70,13 @@ CI上でタグを作成・pushできる。`yourwish_kentei` は他プロジェ�
   `test/records_page_live_update_test.dart`（タブを再マウントせずに自動更新されることを確認）で検証。
   `flutter build web` + Playwrightで実機確認（記録タブを開いたまま演習で1問不正解にし、タブに
   戻らず裏側のナビゲーションだけで正答率・復習待ち一覧が自動更新されることを確認、console error 0件）
+- 下部ナビの「設定」タブ（従来はアプリ説明のみの静的ページ）に、解答記録をリセットする機能を追加。
+  `ProgressStore` に `clearRecords()` を追加し（`SharedPreferencesProgressStore`・`InMemoryProgressStore`
+  両方に実装）、`lib/settings/settings_page.dart`（`SettingsPage`）から確認ダイアログを経て呼び出す。
+  リセット後は `progressRevision` を進め、ホーム・記録タブが開いたままでも正答率・復習待ち一覧が
+  即座に空へ更新される。`test/settings_page_test.dart`（キャンセル時は削除されないこと・確定時に
+  削除されリセット完了のスナックバーが出ることを確認）で検証。`flutter build web` + Playwrightで
+  実機確認（確認ダイアログ→リセット→スナックバー表示まで、console error 0件）
 - 第2問の伝票記入（入金・出金・振替伝票）を、実際の伝票の見た目で再現する専用UI `lib/voucher_input/`
   （`VoucherQuestionView`）を追加。新しい `QuestionType` は増やさず、既存の `journal` 型データを
   そのまま使う（`topicId` が `voucher_payment`/`voucher_receipt`/`voucher_transfer` の問題だけ

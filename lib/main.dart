@@ -9,6 +9,7 @@ import 'practice/practice_page.dart';
 import 'progress/progress_store.dart';
 import 'progress/progress_summary_card.dart';
 import 'records/records_page.dart';
+import 'settings/settings_page.dart';
 
 /// 演習・模擬試験の解答記録の保存先。端末内保存（アプリ全体で共有）。
 final ProgressStore appProgressStore = SharedPreferencesProgressStore();
@@ -35,7 +36,7 @@ class UkalabBoki3App extends StatelessWidget {
           const _LearnPage(),
           const _MockExamTab(),
           RecordsPage(progressStore: appProgressStore),
-          const _AboutPage(),
+          SettingsPage(progressStore: appProgressStore),
         ],
       ),
     );
@@ -126,28 +127,6 @@ class _MockExamTab extends StatelessWidget {
         ),
         child: const Text('模擬試験を始める'),
       ),
-    );
-  }
-}
-
-class _AboutPage extends StatelessWidget {
-  const _AboutPage();
-
-  @override
-  Widget build(BuildContext context) {
-    return ListView(
-      padding: const EdgeInsets.all(16),
-      children: const [
-        Text(
-          'このアプリについて',
-          style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-        ),
-        SizedBox(height: 12),
-        Text(
-          '「うかラボ 簿記3級」は、日本商工会議所および各地商工会議所とは一切関係のない、'
-          '非公式の学習アプリです。「日商簿記」は各団体の商標・登録商標である可能性があります。',
-        ),
-      ],
     );
   }
 }

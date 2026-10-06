@@ -40,6 +40,9 @@ class ProgressRecord {
 abstract class ProgressStore {
   Future<List<ProgressRecord>> loadRecords();
   Future<void> addRecord(ProgressRecord record);
+
+  /// 保存済みの解答記録をすべて消す（「設定」タブのリセット機能用）。
+  Future<void> clearRecords();
 }
 
 /// 端末内（`SharedPreferences`）への保存。記録が増え続けないよう、
@@ -76,6 +79,12 @@ class SharedPreferencesProgressStore implements ProgressStore {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString(_key, jsonEncode([for (final r in capped) r.toJson()]));
   }
+
+  @override
+  Future<void> clearRecords() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove(_key);
+  }
 }
 
 /// テスト・プレビュー用のインメモリ実装。
@@ -87,4 +96,7 @@ class InMemoryProgressStore implements ProgressStore {
 
   @override
   Future<void> addRecord(ProgressRecord record) async => _records.add(record);
+
+  @override
+  Future<void> clearRecords() async => _records.clear();
 }
