@@ -1,9 +1,7 @@
 import 'package:app_common_kit/app_common_kit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:yourwish_kentei/yourwish_kentei.dart';
 
-import 'journal_input/journal_question_view.dart';
 import 'mock_exam/mock_exam_page.dart';
 import 'practice/practice_page.dart';
 import 'progress/progress_store.dart';
@@ -61,54 +59,56 @@ class _HomePage extends StatelessWidget {
   }
 }
 
-/// 「学ぶ」タブ。現時点は仕訳入力UIの動作確認用サンプル問題への入口のみ。
+/// 「学ぶ」タブ。科目別の練習（第1〜3問）と、全問をまとめて解く問題集への入口。
 class _LearnPage extends StatelessWidget {
   const _LearnPage();
 
-  @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          FilledButton(
-            onPressed: () => Navigator.of(context).push(
-              MaterialPageRoute(builder: (_) => const _SampleJournalQuestionPage()),
-            ),
-            child: const Text('仕訳の問題を試す（サンプル）'),
-          ),
-          const SizedBox(height: 12),
-          OutlinedButton(
-            onPressed: () => Navigator.of(context).push(
-              MaterialPageRoute(builder: (_) => PracticePage(progressStore: appProgressStore)),
-            ),
-            child: const Text('問題を練習する（問題集）'),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _SampleJournalQuestionPage extends StatelessWidget {
-  const _SampleJournalQuestionPage();
+  /// `assets/exam/boki3.exam.json` の `subjects` と対応する
+  /// （subjectId, 表示名）。3つで固定のため、ここでは読み込まずハードコードする。
+  static const _subjects = [
+    ('q1_shiwake', '第1問 仕訳'),
+    ('q2_choubo', '第2問 帳簿・伝票等'),
+    ('q3_kessan', '第3問 決算'),
+  ];
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('仕訳の問題（サンプル）')),
-      body: const SafeArea(
-        child: JournalQuestionView(
-          prompt: '商品1,000円を現金で売り上げた。この取引を仕訳しなさい。',
-          correctAnswer: JournalAnswer(
-            lines: [
-              JournalLine(side: JournalSide.debit, account: 'cash', amount: 1000),
-              JournalLine(side: JournalSide.credit, account: 'sales', amount: 1000),
-            ],
+    final theme = Theme.of(context);
+    return ListView(
+      padding: const EdgeInsets.all(16),
+      children: [
+        const SizedBox(height: 8),
+        Center(child: Text('学ぶ', style: theme.textTheme.titleLarge)),
+        const SizedBox(height: 24),
+        Text('科目別に練習する', style: theme.textTheme.titleMedium),
+        const SizedBox(height: 8),
+        for (final (subjectId, name) in _subjects)
+          Padding(
+            padding: const EdgeInsets.only(bottom: 8),
+            child: SizedBox(
+              width: double.infinity,
+              child: OutlinedButton(
+                onPressed: () => Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (_) => PracticePage(
+                      progressStore: appProgressStore,
+                      subjectId: subjectId,
+                      title: '$nameを練習する',
+                    ),
+                  ),
+                ),
+                child: Align(alignment: Alignment.centerLeft, child: Text(name)),
+              ),
+            ),
           ),
-          explanation: '現金(資産)が増えるので借方に、売上(収益)が発生するので貸方に記入する。',
+        const SizedBox(height: 16),
+        FilledButton(
+          onPressed: () => Navigator.of(context).push(
+            MaterialPageRoute(builder: (_) => PracticePage(progressStore: appProgressStore)),
+          ),
+          child: const Text('すべての問題を練習する（問題集）'),
         ),
-      ),
+      ],
     );
   }
 }

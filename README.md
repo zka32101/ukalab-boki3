@@ -77,6 +77,18 @@ CI上でタグを作成・pushできる。`yourwish_kentei` は他プロジェ�
   即座に空へ更新される。`test/settings_page_test.dart`（キャンセル時は削除されないこと・確定時に
   削除されリセット完了のスナックバーが出ることを確認）で検証。`flutter build web` + Playwrightで
   実機確認（確認ダイアログ→リセット→スナックバー表示まで、console error 0件）
+- 「学ぶ」タブに科目別の練習モードを追加。`PracticePage` に `subjectId`（絞り込み）・`title`
+  （AppBarタイトルの上書き）パラメータを追加し、第1問 仕訳／第2問 帳簿・伝票等／第3問 決算の
+  いずれかだけを集中的に解けるようにした（従来は147問全部をまとめて1セッションにするか、
+  「間違えた問題を復習する」の qid 絞り込みしかできなかった）。開発確認用だった「仕訳の問題を試す
+  （サンプル）」ボタン（固定1問・`ProgressStore` に記録されない）は実用上の価値が薄いため削除し、
+  科目選択ボタンに置き換えた。`test/learn_subject_practice_test.dart` で検証。実装の過程で、
+  widget テストから実機相当の `SharedPreferencesProgressStore`（`appProgressStore`）を経由する画面を
+  開くとテスト環境にプラグイン実体がなく `MissingPluginException` になる問題に気づき、
+  `SharedPreferences.setMockInitialValues({})` を使うよう修正（従来は `ProgressStore` に依存しない
+  静的な画面しかフルアプリ経由でテストしていなかったため表面化していなかった）。
+  `flutter build web` + Playwrightで実機確認（科目選択→該当科目のみ出題されることを確認、
+  console error 0件）
 - 第2問の伝票記入（入金・出金・振替伝票）を、実際の伝票の見た目で再現する専用UI `lib/voucher_input/`
   （`VoucherQuestionView`）を追加。新しい `QuestionType` は増やさず、既存の `journal` 型データを
   そのまま使う（`topicId` が `voucher_payment`/`voucher_receipt`/`voucher_transfer` の問題だけ

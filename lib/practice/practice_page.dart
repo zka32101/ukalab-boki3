@@ -20,14 +20,27 @@ import 'choice_question_view.dart';
 /// （出典必須・貸借一致など）は `test/questions_data_test.dart` で
 /// 別途検証済みのため、ここではロード失敗のみハンドリングする。
 class PracticePage extends StatefulWidget {
-  const PracticePage({super.key, required this.progressStore, this.restrictToQids});
+  const PracticePage({
+    super.key,
+    required this.progressStore,
+    this.restrictToQids,
+    this.subjectId,
+    this.title,
+  });
 
   /// 解答記録の保存先（ホーム画面の科目別正答率に反映される）。
   final ProgressStore progressStore;
 
   /// 非null なら、全問題の中からこの qid 集合に含まれる問題だけを出題する
-  /// （「間違えた問題を復習する」から開くとき用）。
+  /// （「間違えた問題を復習する」から開くとき用）。[subjectId] と同時には使わない。
   final Set<String>? restrictToQids;
+
+  /// 非null なら、この科目（`ExamConfig.subjects` の `subjectId`）の問題だけを
+  /// 出題する（「学ぶ」タブの科目別練習から開くとき用）。
+  final String? subjectId;
+
+  /// AppBarのタイトル。省略時は [restrictToQids] の有無から自動で決める。
+  final String? title;
 
   @override
   State<PracticePage> createState() => _PracticePageState();
@@ -52,9 +65,12 @@ class _PracticePageState extends State<PracticePage> {
       throw StateError('問題データの読み込みに失敗しました: ${parsed.issues}');
     }
     final restrict = widget.restrictToQids;
-    final pool = restrict == null
-        ? parsed.questions
-        : parsed.questions.where((q) => restrict.contains(q.qid)).toList();
+    final subjectId = widget.subjectId;
+    final pool = restrict != null
+        ? parsed.questions.where((q) => restrict.contains(q.qid)).toList()
+        : subjectId != null
+        ? parsed.questions.where((q) => q.subjectId == subjectId).toList()
+        : parsed.questions;
 
     // 直近の解答で不正解のまま放置されている問題（間隔反復の「期限切れ」相当）を
     // 先頭に優先出題する。`PracticeSession` 側は、対象の qid が pool になければ
@@ -70,7 +86,11 @@ class _PracticePageState extends State<PracticePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text(widget.restrictToQids == null ? '問題を練習する' : '間違えた問題を復習する')),
+      appBar: AppBar(
+        title: Text(
+          widget.title ?? (widget.restrictToQids == null ? '問題を練習する' : '間違えた問題を復習する'),
+        ),
+      ),
       body: SafeArea(
         child: FutureBuilder<PracticeSession>(
           future: _sessionFuture,
