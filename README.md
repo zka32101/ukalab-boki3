@@ -113,6 +113,17 @@ CI上でタグを作成・pushできる。`yourwish_kentei` は他プロジェ�
   （2回目の呼び出しが同じFutureインスタンスを返すことを確認）で検証。`flutter build web` +
   Playwrightで実機確認（初回の「問題を練習する」表示まで約1.5秒かかっていたのが、タブを
   行き来して再度開くと0.5秒未満で表示されることを確認、console error 0件）
+- 模擬試験の結果画面に「解答結果の詳細を見る」ボタンを追加し、`lib/mock_exam/mock_exam_review_page.dart`
+  （`MockExamReviewPage`）で全問の正誤・自分の解答・正解・解説をまとめて振り返れるようにした。
+  「間違えた問題を復習する」（解き直し）とは別に、本試験前に「どこをどう間違えたか」を確認できる
+  画面がなかったギャップを埋める。新しいデータモデルは追加せず、出題した `Question` リストと
+  解答記録（`Map<String, Object?>`）に対して `judgeJournal`・`judgeWorksheet`・`judgeLedger` を
+  再計算するだけで実現し、各問題種別の表示は既存の `JournalResultBanner`・`WorksheetResultBanner`・
+  `LedgerResultBanner`（journal/worksheet/ledger型の入力画面で使っているものをそのまま再利用）＋
+  choice型用に新規の簡易表示で構成した。`test/mock_exam_page_test.dart` にレビュー画面を開いて
+  1問目・15問目（スクロール）・不正解表示までを検証する手順を追加。`flutter build web` +
+  Playwrightで全タブ巡回のスモークテストを実施（console error 0件）。15問の対話的な自動操作は
+  （選択肢の座標が問題文の行数で変動し自動化コストが高いため）widgetテストでの検証で代替した
 - 第2問の伝票記入（入金・出金・振替伝票）を、実際の伝票の見た目で再現する専用UI `lib/voucher_input/`
   （`VoucherQuestionView`）を追加。新しい `QuestionType` は増やさず、既存の `journal` 型データを
   そのまま使う（`topicId` が `voucher_payment`/`voucher_receipt`/`voucher_transfer` の問題だけ

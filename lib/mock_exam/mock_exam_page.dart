@@ -14,6 +14,7 @@ import '../progress/progress_store.dart';
 import '../voucher_input/voucher_kind.dart';
 import '../voucher_input/voucher_question_view.dart';
 import '../worksheet_input/worksheet_question_view.dart';
+import 'mock_exam_review_page.dart';
 
 /// 本試験の形式（出題数・制限時間・配点）で1回通しで解き、最後にまとめて
 /// 採点する模擬試験モード。[PracticePage]（`lib/practice/`）と異なり、
@@ -222,6 +223,8 @@ class _MockExamBodyState extends State<_MockExamBody> {
               if (!_isCorrect(q, _answers[q.qid])) q.qid,
           },
           progressStore: widget.progressStore,
+          questions: _questions,
+          answers: _answers,
         );
     }
   }
@@ -409,6 +412,8 @@ class _MockExamResultView extends StatelessWidget {
     required this.result,
     required this.wrongQids,
     required this.progressStore,
+    required this.questions,
+    required this.answers,
   });
 
   final ExamConfig exam;
@@ -418,6 +423,11 @@ class _MockExamResultView extends StatelessWidget {
   /// `PracticePage(restrictToQids: ...)` を開くのに使う。
   final Set<String> wrongQids;
   final ProgressStore progressStore;
+
+  /// 「解答結果の詳細を見る」から `MockExamReviewPage` を開くのに使う、
+  /// 出題した全問とその解答。
+  final List<Question> questions;
+  final Map<String, Object?> answers;
 
   @override
   Widget build(BuildContext context) {
@@ -467,6 +477,15 @@ class _MockExamResultView extends StatelessWidget {
               ),
             ),
         const SizedBox(height: 32),
+        OutlinedButton(
+          onPressed: () => Navigator.of(context).push(
+            MaterialPageRoute(
+              builder: (_) => MockExamReviewPage(questions: questions, answers: answers),
+            ),
+          ),
+          child: const Text('解答結果の詳細を見る'),
+        ),
+        const SizedBox(height: 12),
         if (wrongQids.isNotEmpty)
           FilledButton(
             onPressed: () => Navigator.of(context).push(

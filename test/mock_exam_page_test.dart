@@ -43,6 +43,21 @@ void main() {
     expect(find.textContaining('点'), findsWidgets);
     expect(find.byType(FilledButton), findsWidgets);
 
+    // 「解答結果の詳細を見る」から、全15問ぶんの正誤・解説レビュー画面を開ける。
+    await tester.tap(find.text('解答結果の詳細を見る'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('解答結果の詳細'), findsOneWidget);
+    expect(find.text('1問目'), findsOneWidget);
+    expect(find.text('不正解です'), findsWidgets);
+
+    // 一覧の末尾（15問目）までスクロールして表示できることを確認する。
+    await tester.scrollUntilVisible(find.text('15問目'), 500, scrollable: find.byType(Scrollable));
+    expect(find.text('15問目'), findsOneWidget);
+
+    await tester.tap(find.byType(BackButton));
+    await tester.pumpAndSettle();
+
     // 空欄のまま解答したので全問不正解のはず。「間違えた問題を復習する」から
     // 復習セッション（PracticePage）に入れる。
     final reviewButton = find.textContaining('問を復習する');
