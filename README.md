@@ -164,6 +164,12 @@ CI上でタグを作成・pushできる。`yourwish_kentei` は他プロジェ�
   （現行データでは未発生）。最初に閉じる `」` だけを使うように修正し、回帰テストを追加。
   なお、`LedgerInputController` が `WorksheetInputController` とほぼ同じロジックを重複して持っている点も
   指摘されたが、両方とも独立にテスト済みで動作しているため、リスクに見合わないと判断し今回は見送った。
+- 第2問の補助簿記入（ledger型）問題データを4問追加（計12問）。worksheet型と同様に手薄だったため拡充した。
+  既存の帳簿種別（得意先元帳・仕入先元帳・現金出納帳・当座預金出納帳）に、返品（売上戻り・仕入戻し）や
+  出資の受入・雑収入など、既存パターンよりやや応用的な取引を組み込んだバリエーションを追加
+  （`accounts_receivable_ledger_return`・`accounts_payable_ledger_return`・`cash_book_capital`・
+  `checking_account_book_variation`）。既存の `LedgerCell`（`receipt`/`issue`/`balance` グループ）の
+  スキーマのまま表現できることを確認済み。先入先出法（複数ロット並存）は従来どおりPhase 2.5として先送り。
 
 ## 2027年4月の配点変更
 
