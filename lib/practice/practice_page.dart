@@ -1,10 +1,10 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart' show rootBundle;
 import 'package:yourwish_kentei/yourwish_kentei.dart';
 
 import '../evidence_input/evidence_question_view.dart';
+import '../exam_data/exam_data_cache.dart';
 import '../journal_input/journal_question_view.dart';
 import '../ledger_input/ledger_question_view.dart';
 import '../progress/progress_revision.dart';
@@ -59,18 +59,14 @@ class _PracticePageState extends State<PracticePage> {
   }
 
   Future<PracticeSession> _loadSession() async {
-    final text = await rootBundle.loadString('assets/exam/boki3.questions.jsonl');
-    final parsed = parseQuestionsJsonl(text);
-    if (parsed.issues.isNotEmpty) {
-      throw StateError('問題データの読み込みに失敗しました: ${parsed.issues}');
-    }
+    final questions = await loadQuestions();
     final restrict = widget.restrictToQids;
     final subjectId = widget.subjectId;
     final pool = restrict != null
-        ? parsed.questions.where((q) => restrict.contains(q.qid)).toList()
+        ? questions.where((q) => restrict.contains(q.qid)).toList()
         : subjectId != null
-        ? parsed.questions.where((q) => q.subjectId == subjectId).toList()
-        : parsed.questions;
+        ? questions.where((q) => q.subjectId == subjectId).toList()
+        : questions;
 
     // 直近の解答で不正解のまま放置されている問題（間隔反復の「期限切れ」相当）を
     // 先頭に優先出題する。`PracticeSession` 側は、対象の qid が pool になければ

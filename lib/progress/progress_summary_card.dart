@@ -1,9 +1,7 @@
-import 'dart:convert';
-
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart' show rootBundle;
 import 'package:yourwish_kentei/yourwish_kentei.dart';
 
+import '../exam_data/exam_data_cache.dart';
 import 'progress_revision.dart';
 import 'progress_store.dart';
 import 'progress_summary.dart';
@@ -47,8 +45,7 @@ class _ProgressSummaryCardState extends State<ProgressSummaryCard> {
   }
 
   Future<_ProgressCardData> _load() async {
-    final examText = await rootBundle.loadString('assets/exam/boki3.exam.json');
-    final exam = ExamConfig.fromJson(jsonDecode(examText) as Map<String, dynamic>);
+    final exam = await loadExamConfig();
     final records = await widget.store.loadRecords();
     return _ProgressCardData(exam: exam, bySubject: summarizeBySubject(records));
   }

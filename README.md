@@ -104,6 +104,15 @@ CI上でタグを作成・pushできる。`yourwish_kentei` は他プロジェ�
   切り替えでMaterialAppのthemeModeが変わること）。`flutter build web` + Playwrightで
   実機確認（設定タブで「ダーク」を選ぶと即座に全体に反映され、他タブへ移動しても
   維持されることを確認、console error 0件）
+- 問題データ（`boki3.questions.jsonl`・`boki3.exam.json`）の読み込みキャッシュを
+  `lib/exam_data/exam_data_cache.dart`（`loadQuestions`・`loadExamConfig`）に集約。従来は
+  `PracticePage`・`RecordsPage`・`MockExamPage`・`ProgressSummaryCard` の4箇所がそれぞれ
+  独立に同じファイルを読み込み・パースしており、タブを行き来するたびに147問のJSONLを
+  再パースしていた。アプリ起動中は最初の呼び出し結果（`Future`）をキャッシュして使い回す
+  ようにし、2回目以降の表示を高速化した。`test/exam_data_cache_test.dart`
+  （2回目の呼び出しが同じFutureインスタンスを返すことを確認）で検証。`flutter build web` +
+  Playwrightで実機確認（初回の「問題を練習する」表示まで約1.5秒かかっていたのが、タブを
+  行き来して再度開くと0.5秒未満で表示されることを確認、console error 0件）
 - 第2問の伝票記入（入金・出金・振替伝票）を、実際の伝票の見た目で再現する専用UI `lib/voucher_input/`
   （`VoucherQuestionView`）を追加。新しい `QuestionType` は増やさず、既存の `journal` 型データを
   そのまま使う（`topicId` が `voucher_payment`/`voucher_receipt`/`voucher_transfer` の問題だけ

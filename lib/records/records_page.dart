@@ -1,9 +1,7 @@
-import 'dart:convert';
-
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart' show rootBundle;
 import 'package:yourwish_kentei/yourwish_kentei.dart';
 
+import '../exam_data/exam_data_cache.dart';
 import '../practice/practice_page.dart';
 import '../progress/progress_revision.dart';
 import '../progress/progress_store.dart';
@@ -47,11 +45,9 @@ class _RecordsPageState extends State<RecordsPage> {
   }
 
   Future<_RecordsData> _load() async {
-    final examText = await rootBundle.loadString('assets/exam/boki3.exam.json');
-    final exam = ExamConfig.fromJson(jsonDecode(examText) as Map<String, dynamic>);
-    final questionsText = await rootBundle.loadString('assets/exam/boki3.questions.jsonl');
-    final parsed = parseQuestionsJsonl(questionsText);
-    final byQid = {for (final q in parsed.questions) q.qid: q};
+    final exam = await loadExamConfig();
+    final questions = await loadQuestions();
+    final byQid = {for (final q in questions) q.qid: q};
     final subjectNameOf = {for (final s in exam.subjects) s.subjectId: s.name};
 
     final records = await widget.progressStore.loadRecords();

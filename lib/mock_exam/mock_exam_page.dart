@@ -1,11 +1,10 @@
 import 'dart:async';
-import 'dart:convert';
 
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart' show rootBundle;
 import 'package:yourwish_kentei/yourwish_kentei.dart';
 
 import '../evidence_input/evidence_question_view.dart';
+import '../exam_data/exam_data_cache.dart';
 import '../journal_input/journal_question_view.dart';
 import '../ledger_input/ledger_question_view.dart';
 import '../practice/choice_question_view.dart';
@@ -39,19 +38,14 @@ class _MockExamPageState extends State<MockExamPage> {
   }
 
   Future<_MockExamData> _load() async {
-    final examText = await rootBundle.loadString('assets/exam/boki3.exam.json');
-    final exam = ExamConfig.fromJson(jsonDecode(examText) as Map<String, dynamic>);
+    final exam = await loadExamConfig();
     final level = exam.level('level3_from_2027_04');
     if (level == null) {
       throw StateError('level3_from_2027_04 が見つかりません');
     }
 
-    final questionsText = await rootBundle.loadString('assets/exam/boki3.questions.jsonl');
-    final parsed = parseQuestionsJsonl(questionsText);
-    if (parsed.issues.isNotEmpty) {
-      throw StateError('問題データの読み込みに失敗しました: ${parsed.issues}');
-    }
-    final pool = parsed.questions.where((q) => q.levelId == level.levelId);
+    final questions = await loadQuestions();
+    final pool = questions.where((q) => q.levelId == level.levelId);
 
     return _MockExamData(exam: exam, level: level, pool: pool.toList());
   }
