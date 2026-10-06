@@ -102,6 +102,11 @@ class _MockExamBodyState extends State<_MockExamBody> {
   int _remainingSec = 0;
   MockExamResult? _result;
 
+  /// 制限時間切れのTimerと、最終問題での「次へ」がほぼ同時に発生すると
+  /// `_finish()` が二重に走り、`addRecord` の読み込み→書き込みが競合して
+  /// 記録が壊れる恐れがある。最初の呼び出しだけ処理するためのガード。
+  bool _finishing = false;
+
   LevelConfig get _level => widget.data.level;
 
   @override
@@ -144,6 +149,8 @@ class _MockExamBodyState extends State<_MockExamBody> {
   }
 
   Future<void> _finish() async {
+    if (_finishing) return;
+    _finishing = true;
     _timer?.cancel();
     final result = scoreMockExam(
       questions: _questions,

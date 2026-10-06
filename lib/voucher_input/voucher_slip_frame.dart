@@ -12,7 +12,8 @@ class VoucherSlipFrame extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final (background, accent) = _colorsFor(kind);
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final (background, accent) = _colorsFor(kind, isDark);
     return Container(
       margin: const EdgeInsets.all(12),
       decoration: BoxDecoration(
@@ -43,9 +44,21 @@ class VoucherSlipFrame extends StatelessWidget {
     );
   }
 
-  (Color, Color) _colorsFor(VoucherKind kind) => switch (kind) {
-        VoucherKind.receipt => (Colors.red.shade50, Colors.red.shade400),
-        VoucherKind.payment => (Colors.blue.shade50, Colors.blue.shade400),
-        VoucherKind.transfer => (Colors.grey.shade200, Colors.grey.shade700),
+  // ライトモードは淡い用紙色＋濃いアクセント、ダークモードは濃い用紙色＋
+  // やや明るいアクセントにして、中身のテキスト（テーマのonSurface色）との
+  // コントラストを両モードで確保する。
+  (Color, Color) _colorsFor(VoucherKind kind, bool isDark) => switch (kind) {
+        VoucherKind.receipt => (
+            isDark ? Colors.red.shade900.withValues(alpha: 0.4) : Colors.red.shade50,
+            Colors.red.shade400,
+          ),
+        VoucherKind.payment => (
+            isDark ? Colors.blue.shade900.withValues(alpha: 0.4) : Colors.blue.shade50,
+            Colors.blue.shade400,
+          ),
+        VoucherKind.transfer => (
+            isDark ? Colors.grey.shade800 : Colors.grey.shade200,
+            isDark ? Colors.grey.shade500 : Colors.grey.shade700,
+          ),
       };
 }

@@ -51,7 +51,10 @@ const _titleCandidates = <(String, IconData)>[
 /// null を返し、呼び出し側は通常のプロンプト表示にフォールバックする。
 EvidenceDocument? parseEvidenceDocument(String prompt) {
   final openIndex = prompt.indexOf('「');
-  final closeIndex = prompt.lastIndexOf('」');
+  // 最初に閉じる「」だけを証ひょうの内容として扱う。`lastIndexOf` だと、
+  // 将来「」で囲んだ語句が複数登場する問題文で、無関係な区間まで
+  // 証ひょうの内容に巻き込んでしまう。
+  final closeIndex = openIndex == -1 ? -1 : prompt.indexOf('」', openIndex + 1);
   if (openIndex == -1 || closeIndex == -1 || closeIndex <= openIndex) return null;
 
   final narrative = prompt.substring(0, openIndex).trim();

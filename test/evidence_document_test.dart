@@ -50,4 +50,16 @@ void main() {
 
     expect(parseEvidenceDocument(prompt), isNull);
   });
+
+  test('「」で囲まれた語句が複数ある場合は最初のペアだけを証ひょうの内容とする', () {
+    const prompt = '仕入先から次の領収書を受け取った。'
+        '「品名A 5個×1,000円＝5,000円」。'
+        'なお、代金のうち一部は「特別条件」として翌月払いとする。この取引を仕訳しなさい。';
+
+    final doc = parseEvidenceDocument(prompt);
+
+    expect(doc, isNotNull);
+    expect(doc!.items, ['品名A 5個×1,000円＝5,000円']);
+    expect(doc.instruction, 'なお、代金のうち一部は「特別条件」として翌月払いとする。この取引を仕訳しなさい。');
+  });
 }
