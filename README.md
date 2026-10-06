@@ -2,6 +2,17 @@
 
 日商簿記検定3級の学習アプリ（非公式）。日本商工会議所・各地商工会議所とは関係ありません。
 
+## スコープの方針（簿記2級・AFPなど）
+
+簿記2級は将来的に**このアプリに含める**方針。journal/ledger/worksheet型の入力UI・勘定科目エンジンを
+ほぼ共用でき、`ExamConfig`も複数levelを前提にした設計（`level3_until_2027_03`/`level3_from_2027_04`）
+のため、`level2_...`を追加する形で構造的に自然に拡張できる。ユーザー層も「3級→2級」と進む同じ学習者。
+
+AFP・FP技能士など簿記と異なるドメインの資格は**別アプリ**にする方針。選択式・計算問題が中心で、
+今回作り込んだ仕訳・帳簿・精算表の入力UIがほぼ使えず、勘定科目一覧などのドメイン知識も無関係。
+ASOキーワード・ブランドが混ざるのを避けるため。ただし`yourwish_kentei`・`app_common_kit`という
+共通エンジンはそのまま再利用する想定（モノレポの元々の設計思想どおり）。2026-10時点ではまだ着手していない。
+
 ## 構成と依存
 
 ```
@@ -36,6 +47,14 @@ CI上でタグを作成・pushできる。`yourwish_kentei` は他プロジェ�
 - 「模擬」タブから、本試験形式（`level3_from_2027_04`：15問・60分・合格ライン総合70%、科目別出題数は仕訳10/帳簿伝票3/決算2）で1回通しで解く模擬試験モード `lib/mock_exam/mock_exam_page.dart` を実装。本試験と同じく解答中は正誤を表示せず、全問解答後に `yourwish_kentei` の `pickMockExamQuestions`・`scoreMockExam` でまとめて採点し、総合点・科目別得点・合否を表示する。`JournalQuestionView`・`ChoiceQuestionView`・`WorksheetQuestionView` に `revealResult: false` を追加し、模擬試験では即答で正誤を見せずに次の問題へ進めるようにした。`test/mock_exam_page_test.dart` で開始〜全15問解答〜結果表示までを検証
 - `PracticePage`（「問題を練習する（問題集）」）の結果画面に「間違えたN問を復習する」ボタンを追加。`PracticeSession.records` から不正解だった qid を集め、`PracticePage(restrictToQids: ...)` でその問題だけに絞った復習セッションを開く（`test/practice_page_review_test.dart` で検証）
 - 演習・模擬試験の解答を `lib/progress/progress_store.dart`（`SharedPreferences` による端末内保存）に記録し、ホーム画面に科目別の正答率カード `lib/progress/progress_summary_card.dart` を表示するようにした。正答率70%未満の科目は「苦手科目」として警告アイコン付きで強調する。`test/progress_summary_test.dart`・`test/progress_summary_card_empty_test.dart`・`test/progress_summary_card_filled_test.dart` で検証
+- 間隔反復（直近で不正解のまま放置されている問題を優先出題する）を `lib/progress/review_priority.dart`
+  （`reviewPriorityQids`）で実装。既存の解答記録（`ProgressStore.loadRecords()`）から、各qidの最新の
+  解答が不正解だったものを抽出し、不正解のまま最も長く放置されている順に並べる。`yourwish_kentei` の
+  `PracticeSession` には元々 `priorityQids`（出題順の先頭に優先出題する仕組み）が用意されていたが
+  アプリ側では未使用だったため、新しいエンジン実装は不要だった。「問題を練習する（問題集）」を開く
+  たびに `PracticePage._loadSession()` で計算し、優先出題中の問題には「苦手な問題を復習中」の表示を
+  出す。`test/review_priority_test.dart`（優先順位の計算ロジック）・
+  `test/practice_page_review_priority_test.dart`（実際に先頭に出題されることを確認）で検証
 - 第2問の伝票記入（入金・出金・振替伝票）を、実際の伝票の見た目で再現する専用UI `lib/voucher_input/`
   （`VoucherQuestionView`）を追加。新しい `QuestionType` は増やさず、既存の `journal` 型データを
   そのまま使う（`topicId` が `voucher_payment`/`voucher_receipt`/`voucher_transfer` の問題だけ

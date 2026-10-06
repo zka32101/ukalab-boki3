@@ -8,6 +8,7 @@ import '../evidence_input/evidence_question_view.dart';
 import '../journal_input/journal_question_view.dart';
 import '../ledger_input/ledger_question_view.dart';
 import '../progress/progress_store.dart';
+import '../progress/review_priority.dart';
 import '../voucher_input/voucher_kind.dart';
 import '../voucher_input/voucher_question_view.dart';
 import '../worksheet_input/worksheet_question_view.dart';
@@ -34,6 +35,9 @@ class PracticePage extends StatefulWidget {
 class _PracticePageState extends State<PracticePage> {
   late Future<PracticeSession> _sessionFuture;
 
+  /// 直近の解答記録から優先的に出題した問題数（間隔反復）。0ならUIに出さない。
+  int _priorityCount = 0;
+
   @override
   void initState() {
     super.initState();
@@ -50,7 +54,16 @@ class _PracticePageState extends State<PracticePage> {
     final pool = restrict == null
         ? parsed.questions
         : parsed.questions.where((q) => restrict.contains(q.qid)).toList();
-    return PracticeSession(pool: pool, size: pool.length);
+
+    // 直近の解答で不正解のまま放置されている問題（間隔反復の「期限切れ」相当）を
+    // 先頭に優先出題する。`PracticeSession` 側は、対象の qid が pool になければ
+    // 無視するので、ここでの絞り込みは厳密でなくてよい。
+    final records = await widget.progressStore.loadRecords();
+    final priority = reviewPriorityQids(records);
+    final poolQids = {for (final q in pool) q.qid};
+    _priorityCount = priority.where(poolQids.contains).length;
+
+    return PracticeSession(pool: pool, size: pool.length, priorityQids: priority);
   }
 
   @override
@@ -67,7 +80,11 @@ class _PracticePageState extends State<PracticePage> {
             if (snapshot.hasError) {
               return Center(child: Text('読み込みに失敗しました: ${snapshot.error}'));
             }
-            return _SessionBody(session: snapshot.data!, progressStore: widget.progressStore);
+            return _SessionBody(
+              session: snapshot.data!,
+              progressStore: widget.progressStore,
+              priorityCount: _priorityCount,
+            );
           },
         ),
       ),
@@ -76,10 +93,13 @@ class _PracticePageState extends State<PracticePage> {
 }
 
 class _SessionBody extends StatefulWidget {
-  const _SessionBody({required this.session, required this.progressStore});
+  const _SessionBody({required this.session, required this.progressStore, this.priorityCount = 0});
 
   final PracticeSession session;
   final ProgressStore progressStore;
+
+  /// 間隔反復で優先出題している問題数（先頭から何問分か）。
+  final int priorityCount;
 
   @override
   State<_SessionBody> createState() => _SessionBodyState();
@@ -101,16 +121,29 @@ class _SessionBodyState extends State<_SessionBody> {
     if (current == null) {
       return _ResultView(session: session, progressStore: widget.progressStore);
     }
+    final isPriorityQuestion = session.index < widget.priorityCount;
     return Column(
       children: [
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-          child: Align(
-            alignment: Alignment.centerLeft,
-            child: Text(
-              '${session.index + 1} / ${session.questions.length}問目',
-              style: Theme.of(context).textTheme.labelLarge,
-            ),
+          child: Row(
+            children: [
+              Text(
+                '${session.index + 1} / ${session.questions.length}問目',
+                style: Theme.of(context).textTheme.labelLarge,
+              ),
+              if (isPriorityQuestion) ...[
+                const SizedBox(width: 8),
+                Icon(Icons.replay, size: 16, color: Theme.of(context).colorScheme.primary),
+                const SizedBox(width: 2),
+                Text(
+                  '苦手な問題を復習中',
+                  style: Theme.of(
+                    context,
+                  ).textTheme.labelLarge?.copyWith(color: Theme.of(context).colorScheme.primary),
+                ),
+              ],
+            ],
           ),
         ),
         Expanded(child: _buildQuestion(current, session)),
