@@ -21,10 +21,13 @@ import 'mock_exam_review_page.dart';
 /// 採点する模擬試験モード。[PracticePage]（`lib/practice/`）と異なり、
 /// 解答中は正誤を表示しない（本試験では分からないため）。
 class MockExamPage extends StatefulWidget {
-  const MockExamPage({super.key, required this.progressStore});
+  const MockExamPage({super.key, required this.progressStore, this.now});
 
   /// 解答記録の保存先（ホーム画面の科目別正答率に反映される）。
   final ProgressStore progressStore;
+
+  /// 新旧配点levelの切り替え判定に使う「現在時刻」（テスト用。省略時は実際の現在時刻）。
+  final DateTime? now;
 
   @override
   State<MockExamPage> createState() => _MockExamPageState();
@@ -41,7 +44,7 @@ class _MockExamPageState extends State<MockExamPage> {
 
   Future<_MockExamData> _load() async {
     final exam = await loadExamConfig();
-    final levelId = currentLevelId();
+    final levelId = currentLevelId(now: widget.now);
     final level = exam.level(levelId);
     if (level == null) {
       throw StateError('$levelId が見つかりません');

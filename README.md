@@ -345,9 +345,22 @@ Chromiumをヘッドレスモードで動かし、スクリーンショットで
 - `currentLevelId({DateTime? now})` はテスト用に時刻を注入できる。`test/current_level_test.dart` で
   2027-03-31／2027-04-01の境界・2026-11-15（第174回）を検証。
 - 出題数が15→20問に変わったため、`test/mock_exam_page_test.dart`・`test/mock_exam_double_finish_test.dart`
-  の件数も合わせて更新。`flutter analyze` 0件・`flutter test`（52件）成功、Webビルド＋ヘッドレス
-  ブラウザでの表示確認（現在日時で模擬試験の導入画面に「3級（〜2027年3月実施・配点45/20/35）」
-  「出題数: 20問」が表示されることを確認、console error 0件）も実施済み。
+  の件数も合わせて更新。
+- `currentLevelId()` 単体の日付ロジックだけでなく、実際の試験日程を踏まえて `MockExamPage` のイントロ画面
+  （配点の表示文言・出題数）が正しく切り替わることも統合テストで確認した。`MockExamPage` に
+  `now`（テスト用、省略時は実時刻）を追加し、`currentLevelId(now: widget.now)` に渡す形にした。
+  - `test/mock_exam_174th_date_test.dart`：第174回試験日（2026-11-15、統一試験）は旧配点
+    「配点45/20/35」・20問で表示される
+  - `test/mock_exam_scoring_cutover_before_test.dart`：施行前日（2027-03-31）はまだ旧配点のまま
+  - `test/mock_exam_scoring_cutover_after_test.dart`：施行日当日（2027-04-01）から新配点
+    「配点45/25/30」に切り替わる
+
+  次回（175回以降）の正確な試験日はまだ分からないため、175回固有の日付ではなく施行日そのものを境界に
+  検証している。3件とも同一ファイルに書くと原因不明のタイムアウトが起きたため、1テスト1ファイルに
+  分割した（これまでの他のテストでも繰り返し踏んできたFlutter Webテストの既知の制約）。
+  `flutter analyze` 0件・`flutter test`（58件）成功、Webビルド＋ヘッドレスブラウザでの表示確認
+  （現在日時で模擬試験の導入画面に「3級（〜2027年3月実施・配点45/20/35）」「出題数: 20問」が
+  表示されることを確認、console error 0件）も実施済み。
 
 ## 未決・要確認（企画設計書 第6章より）
 
