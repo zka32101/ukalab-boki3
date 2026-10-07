@@ -287,6 +287,31 @@ Chromiumをヘッドレスモードで動かし、スクリーンショットで
   将来これらを追加してネイティブビルドする際、Firebase設定（`google-services.json`等）が無いとビルドが
   失敗する可能性がある。`app_common_kit`側でexportを機能ごとに分割する設計変更が必要になるため、
   今回は見送り、既知の技術的負債として記録するに留めた。
+- C分類（簿記特有の入力UI、`lib/journal_input/`・`lib/ledger_input/`・`lib/worksheet_input/`・
+  `lib/voucher_input/`・`lib/evidence_input/`、計約3150行）も洗い出した。簿記ドメイン知識
+  （勘定科目・借方貸方・仕訳の概念）に強く依存する約13ファイルは簿記2級アプリ内に限定、
+  `numeric_keypad.dart`や`*_input_state.dart`/`*_input_controller.dart`など約6ファイルは
+  セル参照の型を汎用化すればドメインを問わず転用できる構造だった。`*_table.dart`・
+  `*_question_view.dart`など約8ファイルはジェネリクス化すれば汎用化できる中間的な構造。
+  共通基盤（yourwish_kentei等）に上げるのは簿記2級アプリが実在して恩恵を確認できてからにする
+  方針は変えないが、調査の過程で以前「リスクに見合わないため見送った」と記録していた
+  `LedgerInputController`と`WorksheetInputController`の重複が**ほぼ1行単位で同一**だったことが
+  判明したため、ukalab-boki3内でDRY化した。
+  - `lib/cell_grid_input/`（新規）にセル参照型`C`をジェネリクスにした`CellGridInputState<C, Self>`・
+    `CellGridInputController<C, Self>`を追加。テンキー操作（桁追加・000・バックスペース・クリア・
+    桁数上限99999999）とセル選択・次の未入力セルへの自動遷移という、両コントローラで文字通り
+    同一だったロジックをここに集約した。`Self`はF-bounded polymorphism（`class Foo extends
+    CellGridInputState<C, Foo>`という自己参照）で、`copyWithGrid`が具象の状態クラスを保ったまま
+    複製できるようにしている。
+  - `LedgerInputController`/`WorksheetInputController`・`LedgerInputState`/`WorksheetInputState`は、
+    基底クラスを継承する薄いラッパーに縮小（`LedgerInputState`は`toLedgerCells()`、
+    `WorksheetInputState`は`toWorksheetCells()`と`amountAt()`〈`valueAt()`の別名〉だけを残した）。
+    呼び出し側（`*_table.dart`・`*_question_view.dart`）はクラス名・プロバイダ名・メソッド名を
+    一切変えていないため無修正で動く。
+  - `test/cell_grid_input_controller_test.dart`で基底クラスのロジック（セル選択・テンキー入力・
+    桁数上限・次セルへの自動遷移）を直接検証。`flutter analyze`0件・`flutter test`（47件）成功、
+    Webビルド＋ヘッドレスブラウザでの表示確認（精算表のセル選択→テンキー入力→「次へ」で次の
+    未入力セルへ自動遷移、console error 0件）も実施済み。
 
 ## 2027年4月の配点変更
 
