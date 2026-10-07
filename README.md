@@ -273,6 +273,20 @@ Chromiumをヘッドレスモードで動かし、スクリーンショットで
     （UIが実際に表示・動作することの確認）だけ残した。`flutter analyze`0件・`flutter test`（39件）成功、
     `app_common_kit`v0.10.0同梱でのWebビルド成功、ヘッドレスブラウザでの表示確認（ホーム画面の
     `StreakBadge`・設定タブの表示モード切替、console error 0件）も実施済み。
+- `/code-review`で上記の共通基盤移行をレビューし、見つかった不具合を修正した。
+  (1) `SharedPreferences`のキー名が`ukalab_boki3_theme_mode`等（アプリ固有）から
+  `app_common_kit_theme_mode`等（パッケージ共通）に変わったことで、移行コード無しでは既存ユーザーの
+  ダークモード設定・学習ストリークが無言でリセットされる不具合があった。`lib/startup/legacy_key_migration.dart`
+  （`migrateLegacyProgressKeys()`）を追加し、`main()`の起動時に旧キーの値を新キーへ一度だけコピーする
+  移行処理を入れた（新キーに既に値があれば何もしない、2回呼んでも安全）。`test/legacy_key_migration_test.dart`
+  で検証済み。
+  (2) `app_common_kit`が単一のbarrel export（`app_common_kit.dart`）で`entitlement`（RevenueCat）・
+  `stats`（Firebase）・`ads`（Google Mobile Ads）を無条件にexportしているため、v0.10.0への更新で
+  ukalab-boki3が使わない`cloud_firestore`・`firebase_core`等が新たに依存に加わった。現時点では
+  android/iosのプラットフォームディレクトリが無くネイティブビルドをしていないため問題は顕在化していないが、
+  将来これらを追加してネイティブビルドする際、Firebase設定（`google-services.json`等）が無いとビルドが
+  失敗する可能性がある。`app_common_kit`側でexportを機能ごとに分割する設計変更が必要になるため、
+  今回は見送り、既知の技術的負債として記録するに留めた。
 
 ## 2027年4月の配点変更
 

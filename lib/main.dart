@@ -8,12 +8,14 @@ import 'progress/progress_store.dart';
 import 'progress/progress_summary_card.dart';
 import 'records/records_page.dart';
 import 'settings/settings_page.dart';
+import 'startup/legacy_key_migration.dart';
 
 /// 演習・模擬試験の解答記録の保存先。端末内保存（アプリ全体で共有）。
 final ProgressStore appProgressStore = SharedPreferencesProgressStore();
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await migrateLegacyProgressKeys();
   await loadSavedThemeMode();
   runApp(const ProviderScope(child: UkalabBoki3App()));
 }
