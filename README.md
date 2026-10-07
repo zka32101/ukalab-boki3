@@ -24,8 +24,8 @@ ukalab-boki3（このリポジトリ） → yourwish_kentei（検定エンジン
 
 | リポジトリ | タグ |
 |---|---|
-| `zka32101/app_common_kit` | v0.2.0 |
-| `zka32101/yourwish_kentei` | v0.12.0 |
+| `zka32101/app_common_kit` | v0.10.0 |
+| `zka32101/yourwish_kentei` | v0.13.0 |
 
 タグ作成（この環境からの `git push --tags` はネットワークプロキシにHTTP 403で拒否される）は、
 `yourwish_kentei` リポジトリに追加した `.github/workflows/create-tag.yml`（workflow_dispatch、
@@ -242,6 +242,37 @@ Chromiumをヘッドレスモードで動かし、スクリーンショットで
     `IndexedStack`配下のタブ間リアクティブ更新パターン（`progressRevision`）など、検定の種類を
     問わず必要になる汎用ロジックがukalab-boki3側に留まっている。これらを`app_common_kit`・
     `yourwish_kentei`に上げる作業は今回のスコープ外（差し替えではなく新規の共通化のため）。
+- 上記で見送った共通化のうち、永続化ロジック4点（`theme_mode_store.dart`・`streak_store.dart`・
+  `ProgressStore`/`ProgressRecord`・`review_priority.dart`）を実際に`app_common_kit`・`yourwish_kentei`
+  へ移した（`exam_data_cache.dart`・`progressRevision`パターン・模擬試験レビュー画面のテンプレート化は
+  今回も見送り、理由は下記の通り）。
+  - `app_common_kit`（v0.2.0→v0.10.0、PR [#63](https://github.com/zka32101/app_common_kit/pull/63)）:
+    `lib/theme/theme_mode_store.dart`（`appThemeMode`/`loadSavedThemeMode`/`setThemeMode`）・
+    `lib/progress/streak_store.dart`（`recordStudyToday`/`loadCurrentStreak`、既存の`StreakBadge`と
+    対になる永続化ロジック）を追加。
+  - `yourwish_kentei`（v0.12.0→v0.13.0、PR [#26](https://github.com/zka32101/yourwish_kentei/pull/26)）:
+    `lib/progress/progress_record.dart`（`ProgressRecord`/`ProgressStore`(抽象)/`InMemoryProgressStore`）・
+    `lib/progress/review_priority.dart`（`reviewPriorityQids`）を追加。永続化の具体実装
+    （`SharedPreferences`依存）はFlutterプラグインに依存するため、純Dart方針の`yourwish_kentei`には
+    置かず、引き続きukalab-boki3側（`SharedPreferencesProgressStore`）に残した。
+  - 調査の過程で、`yourwish_kentei`に**既に本格的な間隔反復エンジン**（`Srs`/`SrsItem`、Leitner方式の
+    箱システム）が実装済みだったことが判明した。`reviewPriorityQids`（直近不正解を放置期間順に並べる
+    だけの単純な版）とは設計が異なり（`Srs`は専用の永続化状態`SrsItem`が必要）、無理に統合すると
+    復習間隔の挙動が変わりユーザー体験に影響するため、**今回は統合せず別物として共存**させた。
+  - `app_common_kit`にはタグ作成用のworkflow（`yourwish_kentei`の`create-tag.yml`相当）が無かったため、
+    同じ仕組みを追加した（PR [#64](https://github.com/zka32101/app_common_kit/pull/64)）。このクラウド
+    環境からの`git push --tags`はネットワークプロキシにHTTP 403で拒否されるため、`workflow_dispatch`
+    経由でタグを作成する。
+  - ukalab-boki3側は、重複していた`lib/settings/theme_mode_store.dart`・`lib/progress/streak_store.dart`・
+    `lib/progress/review_priority.dart`を削除し、`lib/progress/progress_store.dart`は
+    `SharedPreferencesProgressStore`（具体実装）だけを残して`ProgressRecord`/`ProgressStore`の定義は
+    `yourwish_kentei`からexportし直す形にした（`export 'package:yourwish_kentei/yourwish_kentei.dart'
+    show ...`）。これにより、直接`yourwish_kentei`をimportしている他ファイルとの間でambiguous import
+    にならない。単体テスト（`streak_store_test.dart`・`review_priority_test.dart`・`theme_mode_test.dart`
+    の一部）は移植先の各パッケージ側で重複してテスト済みのため削除し、ukalab-boki3固有の統合テスト
+    （UIが実際に表示・動作することの確認）だけ残した。`flutter analyze`0件・`flutter test`（39件）成功、
+    `app_common_kit`v0.10.0同梱でのWebビルド成功、ヘッドレスブラウザでの表示確認（ホーム画面の
+    `StreakBadge`・設定タブの表示モード切替、console error 0件）も実施済み。
 
 ## 2027年4月の配点変更
 

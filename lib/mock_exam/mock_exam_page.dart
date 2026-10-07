@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:app_common_kit/app_common_kit.dart';
 import 'package:flutter/material.dart';
 import 'package:yourwish_kentei/yourwish_kentei.dart';
 
@@ -10,8 +11,6 @@ import '../ledger_input/ledger_question_view.dart';
 import '../practice/choice_question_view.dart';
 import '../practice/practice_page.dart';
 import '../progress/progress_revision.dart';
-import '../progress/progress_store.dart';
-import '../progress/streak_store.dart';
 import '../voucher_input/voucher_kind.dart';
 import '../voucher_input/voucher_question_view.dart';
 import '../worksheet_input/worksheet_question_view.dart';

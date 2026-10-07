@@ -4,9 +4,7 @@ import 'package:yourwish_kentei/yourwish_kentei.dart';
 
 import '../exam_data/exam_data_cache.dart';
 import 'progress_revision.dart';
-import 'progress_store.dart';
 import 'progress_summary.dart';
-import 'streak_store.dart';
 
 /// ホーム画面に表示する、科目別の正答率カード。
 ///

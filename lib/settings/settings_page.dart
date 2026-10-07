@@ -1,8 +1,8 @@
+import 'package:app_common_kit/app_common_kit.dart';
 import 'package:flutter/material.dart';
 
 import '../progress/progress_revision.dart';
 import '../progress/progress_store.dart';
-import 'theme_mode_store.dart';
 
 /// 「設定」タブ。アプリの説明と、解答記録をリセットする機能を提供する。
 class SettingsPage extends StatelessWidget {

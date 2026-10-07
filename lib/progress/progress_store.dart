@@ -1,52 +1,15 @@
 import 'dart:convert';
 
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:yourwish_kentei/yourwish_kentei.dart';
 
-/// 1問分の解答記録（演習・模擬試験どちらの解答でも共通で使う）。
-class ProgressRecord {
-  const ProgressRecord({
-    required this.qid,
-    required this.subjectId,
-    required this.correct,
-    required this.at,
-  });
-
-  final String qid;
-  final String subjectId;
-  final bool correct;
-  final DateTime at;
-
-  Map<String, dynamic> toJson() => {
-        'qid': qid,
-        'subjectId': subjectId,
-        'correct': correct,
-        'at': at.toIso8601String(),
-      };
-
-  static ProgressRecord? fromJson(Object? json) {
-    if (json is! Map<String, dynamic>) return null;
-    final qid = json['qid'];
-    final subjectId = json['subjectId'];
-    final correct = json['correct'];
-    final at = DateTime.tryParse('${json['at']}');
-    if (qid is! String || subjectId is! String || correct is! bool || at == null) {
-      return null;
-    }
-    return ProgressRecord(qid: qid, subjectId: subjectId, correct: correct, at: at);
-  }
-}
-
-/// 解答記録の保存先。
-abstract class ProgressStore {
-  Future<List<ProgressRecord>> loadRecords();
-  Future<void> addRecord(ProgressRecord record);
-
-  /// 保存済みの解答記録をすべて消す（「設定」タブのリセット機能用）。
-  Future<void> clearRecords();
-}
+export 'package:yourwish_kentei/yourwish_kentei.dart'
+    show ProgressRecord, ProgressStore, InMemoryProgressStore;
 
 /// 端末内（`SharedPreferences`）への保存。記録が増え続けないよう、
-/// 直近 [maxRecords] 件だけを残す。
+/// 直近 [maxRecords] 件だけを残す。[ProgressRecord]・[ProgressStore] の
+/// 定義自体は `yourwish_kentei`（純Dart）にあり、永続化の具体実装だけを
+/// ここに持つ（`shared_preferences` はFlutterプラグインのため）。
 class SharedPreferencesProgressStore implements ProgressStore {
   SharedPreferencesProgressStore({this.maxRecords = 2000});
 
@@ -85,18 +48,4 @@ class SharedPreferencesProgressStore implements ProgressStore {
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove(_key);
   }
-}
-
-/// テスト・プレビュー用のインメモリ実装。
-class InMemoryProgressStore implements ProgressStore {
-  final List<ProgressRecord> _records = [];
-
-  @override
-  Future<List<ProgressRecord>> loadRecords() async => List.unmodifiable(_records);
-
-  @override
-  Future<void> addRecord(ProgressRecord record) async => _records.add(record);
-
-  @override
-  Future<void> clearRecords() async => _records.clear();
 }

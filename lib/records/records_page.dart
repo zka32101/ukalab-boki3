@@ -5,9 +5,7 @@ import 'package:yourwish_kentei/yourwish_kentei.dart';
 import '../exam_data/exam_data_cache.dart';
 import '../practice/practice_page.dart';
 import '../progress/progress_revision.dart';
-import '../progress/progress_store.dart';
 import '../progress/progress_summary_card.dart';
-import '../progress/review_priority.dart';
 
 /// 「記録」タブ。科目別正答率（ホーム画面と同じカード）に加えて、間隔反復で
 /// 復習待ちになっている問題の一覧と、まとめて復習セッションを開くボタンを表示する。
