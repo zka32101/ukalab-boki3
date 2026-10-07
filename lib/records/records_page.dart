@@ -1,3 +1,4 @@
+import 'package:app_common_kit/app_common_kit.dart';
 import 'package:flutter/material.dart';
 import 'package:yourwish_kentei/yourwish_kentei.dart';
 
@@ -71,7 +72,7 @@ class _RecordsPageState extends State<RecordsPage> {
           return const SizedBox.shrink();
         }
         if (snapshot.hasError) {
-          return Center(child: Text('読み込みに失敗しました: ${snapshot.error}'));
+          return ErrorState(message: '読み込みに失敗しました: ${snapshot.error}');
         }
         final data = snapshot.data!;
         return ListView(
@@ -129,10 +130,7 @@ class _ReviewSection extends StatelessWidget {
             ),
             const SizedBox(height: 12),
             if (questions.isEmpty)
-              Text(
-                '復習が必要な問題はありません。',
-                style: theme.textTheme.bodyMedium?.copyWith(color: theme.colorScheme.outline),
-              )
+              const EmptyState(message: '復習が必要な問題はありません。', icon: Icons.check_circle_outline)
             else ...[
               FilledButton.icon(
                 onPressed: () => Navigator.of(context).push(

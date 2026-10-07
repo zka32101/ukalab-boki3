@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:app_common_kit/app_common_kit.dart';
 import 'package:flutter/material.dart';
 import 'package:yourwish_kentei/yourwish_kentei.dart';
 
@@ -267,28 +268,19 @@ class _ResultView extends StatelessWidget {
         if (!r.correct) r.qid,
     };
     return Center(
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Text('終了しました', style: Theme.of(context).textTheme.headlineSmall),
-          const SizedBox(height: 12),
-          Text('正解 $correct / $total問', style: Theme.of(context).textTheme.titleLarge),
-          const SizedBox(height: 24),
-          if (wrongQids.isNotEmpty)
-            FilledButton(
-              onPressed: () => Navigator.of(context).pushReplacement(
-                MaterialPageRoute(
-                  builder: (_) => PracticePage(progressStore: progressStore, restrictToQids: wrongQids),
+      child: ResultSummary(
+        correct: correct,
+        total: total,
+        onRetry: wrongQids.isEmpty
+            ? null
+            : () => Navigator.of(context).pushReplacement(
+                  MaterialPageRoute(
+                    builder: (_) => PracticePage(progressStore: progressStore, restrictToQids: wrongQids),
+                  ),
                 ),
-              ),
-              child: Text('間違えた${wrongQids.length}問を復習する'),
-            ),
-          const SizedBox(height: 12),
-          OutlinedButton(
-            onPressed: () => Navigator.of(context).pop(),
-            child: const Text('戻る'),
-          ),
-        ],
+        retryLabel: '間違えた${wrongQids.length}問を復習する',
+        onClose: () => Navigator.of(context).pop(),
+        closeLabel: '戻る',
       ),
     );
   }

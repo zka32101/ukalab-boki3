@@ -49,7 +49,7 @@ void main() {
     await tester.pumpAndSettle();
 
     // 結果画面：1問だけ間違えているので復習ボタンが出る。
-    expect(find.text('正解 1 / 2問'), findsOneWidget);
+    expect(find.text('1 / 2 問正解'), findsOneWidget);
     expect(find.text('間違えた1問を復習する'), findsOneWidget);
 
     await tester.tap(find.text('間違えた1問を復習する'));

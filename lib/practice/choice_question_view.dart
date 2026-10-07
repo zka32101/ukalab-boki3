@@ -1,3 +1,4 @@
+import 'package:app_common_kit/app_common_kit.dart';
 import 'package:flutter/material.dart';
 
 /// 選択式（type: choice）問題1問分の画面。問題文・選択肢・答え合わせをまとめる。
@@ -58,6 +59,19 @@ class _ChoiceQuestionViewState extends State<ChoiceQuestionView> {
     });
   }
 
+  static const _labels = ['ア', 'イ', 'ウ', 'エ', 'オ', 'カ'];
+
+  String _labelFor(int i) => i < _labels.length ? _labels[i] : '${i + 1}';
+
+  ChoiceState _stateFor(int i) {
+    if (!_answered) {
+      return _selected == i ? ChoiceState.selected : ChoiceState.idle;
+    }
+    if (i == widget.answerIndex) return ChoiceState.correct;
+    if (_selected == i) return ChoiceState.incorrect;
+    return ChoiceState.idle;
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -75,12 +89,14 @@ class _ChoiceQuestionViewState extends State<ChoiceQuestionView> {
             padding: const EdgeInsets.symmetric(horizontal: 16),
             children: [
               for (var i = 0; i < widget.choices.length; i++)
-                _ChoiceTile(
-                  label: widget.choices[i],
-                  selected: _selected == i,
-                  correctChoice: _answered && i == widget.answerIndex,
-                  wrongChoice: _answered && _selected == i && i != widget.answerIndex,
-                  onTap: _answered ? null : () => setState(() => _selected = i),
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 8),
+                  child: ChoiceTile(
+                    label: _labelFor(i),
+                    text: widget.choices[i],
+                    state: _stateFor(i),
+                    onTap: _answered ? null : () => setState(() => _selected = i),
+                  ),
                 ),
             ],
           ),
@@ -102,70 +118,6 @@ class _ChoiceQuestionViewState extends State<ChoiceQuestionView> {
                   : OutlinedButton(onPressed: _retry, child: const Text('もう一度'))),
         ),
       ],
-    );
-  }
-}
-
-class _ChoiceTile extends StatelessWidget {
-  const _ChoiceTile({
-    required this.label,
-    required this.selected,
-    required this.correctChoice,
-    required this.wrongChoice,
-    required this.onTap,
-  });
-
-  final String label;
-  final bool selected;
-  final bool correctChoice;
-  final bool wrongChoice;
-  final VoidCallback? onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    Color? borderColor;
-    if (correctChoice) {
-      borderColor = theme.colorScheme.primary;
-    } else if (wrongChoice) {
-      borderColor = theme.colorScheme.error;
-    } else if (selected) {
-      borderColor = theme.colorScheme.outline;
-    }
-
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 8),
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(12),
-        child: Container(
-          constraints: const BoxConstraints(minHeight: 48),
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(12),
-            border: Border.all(
-              color: borderColor ?? theme.colorScheme.outlineVariant,
-              width: selected || correctChoice || wrongChoice ? 2 : 1,
-            ),
-          ),
-          child: Row(
-            children: [
-              if (correctChoice)
-                Icon(Icons.check_circle, color: theme.colorScheme.primary, size: 20)
-              else if (wrongChoice)
-                Icon(Icons.cancel, color: theme.colorScheme.error, size: 20)
-              else
-                Icon(
-                  selected ? Icons.radio_button_checked : Icons.radio_button_unchecked,
-                  color: selected ? theme.colorScheme.primary : theme.colorScheme.outline,
-                  size: 20,
-                ),
-              const SizedBox(width: 12),
-              Expanded(child: Text(label)),
-            ],
-          ),
-        ),
-      ),
     );
   }
 }

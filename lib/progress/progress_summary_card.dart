@@ -1,3 +1,4 @@
+import 'package:app_common_kit/app_common_kit.dart';
 import 'package:flutter/material.dart';
 import 'package:yourwish_kentei/yourwish_kentei.dart';
 
@@ -75,19 +76,8 @@ class _ProgressSummaryCardState extends State<ProgressSummaryCard> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                if (data.streakDays > 0) ...[
-                  Row(
-                    children: [
-                      const Text('🔥', style: TextStyle(fontSize: 18)),
-                      const SizedBox(width: 6),
-                      Text(
-                        '${data.streakDays}日連続で学習中',
-                        style: theme.textTheme.titleSmall?.copyWith(fontWeight: FontWeight.bold),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 12),
-                ],
+                Align(alignment: Alignment.centerLeft, child: StreakBadge(days: data.streakDays)),
+                const SizedBox(height: 12),
                 Text('科目別の正答率', style: theme.textTheme.titleMedium),
                 const SizedBox(height: 12),
                 if (!hasAny)

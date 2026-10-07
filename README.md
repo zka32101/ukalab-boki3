@@ -35,6 +35,36 @@ CI上でタグを作成・pushできる。`yourwish_kentei` は他プロジェ�
 使用していたため、本リポジトリの変更はv0.12.0とした）。タグ作成前に `git fetch --tags` で
 既存タグと重複しないか確認すること。
 
+## 開発時の表示確認手順（ヘッドレスブラウザ）
+
+このリポジトリの開発はクラウド上のコンテナ内で行っており、本物のスマホ・PC実機やユーザーの手元環境は
+使えない。これまでのログで「実機確認」と書いてきた箇所は、正確には**コンテナ内にプリインストールされた
+Chromiumをヘッドレスモードで動かし、スクリーンショットで見た目を確認したもの**であり、実機ではない
+（フォントレンダリング・実際のタッチ操作・画面サイズのばらつきなどは反映されない）。手順は以下の通り。
+
+1. `export PATH="/opt/flutter/bin:$PATH"` でflutterコマンドを有効化する（`PATH`にデフォルトで
+   入っていない。「root権限で実行している」という警告は無視してよい）。
+2. `flutter build web --release` でビルドする。デバッグビルドや素のreleaseビルドはCanvasKitを
+   `gstatic.com` のCDNから取得しようとするが、このコンテナのネットワークポリシーでブロックされ
+   `ERR_TUNNEL_CONNECTION_FAILED` になる。ローカルにCanvasKitを同梱させるため、必ず
+   `--release` でビルドする。
+3. `build/web/flutter_bootstrap.js` 内の `_flutter.loader.load({...})` 呼び出しに
+   `config: { canvasKitBaseUrl: "canvaskit/" }` を手動で追記するパッチを当てる（ローカル同梱版を
+   参照させるため）。`build/web` は`.gitignore`対象でビルドのたびに作り直されるため、**ビルドする
+   たびに毎回このパッチを当て直す必要がある**（当て忘れるとCanvasKit読み込み失敗で画面が真っ白になる）。
+4. `python3 -m http.server 8766` で `build/web` を配信する。Bashツールでは `(cd build/web &&
+   nohup python3 -m http.server 8766 > /tmp/http_server.log 2>&1 &)` のようにサブシェル＋
+   バックグラウンド実行にしないと、フォアグラウンドのまま張り付いてタイムアウトする。
+5. Python版Playwright（`PLAYWRIGHT_BROWSERS_PATH=/opt/pw-browsers`、
+   `executable_path="/opt/pw-browsers/chromium"`）でヘッドレスChromiumを起動し、
+   `http://localhost:8766/` を開く。CanvasKit描画のため `find.text()` のようなDOMテキスト取得は
+   機能せず、操作は `page.mouse.click(x, y)` の座標クリックで行う。確認は `page.screenshot(path=...)`
+   で撮った画像をReadツールで見て行う（コンソールエラー・pageerrorも`page.on("console"/"pageerror")`
+   で拾って確認するとよい）。
+6. 確認用に一時的に `lib/main.dart` の `PracticePage(...)` 呼び出しへ `restrictToQids: {特定qid}` を
+   足して特定の問題に固定する手法が、特定の問題タイプ（choice型など）をすぐ出すのに有効。確認が終わったら
+   必ず元に戻す。
+
 ## 現状（2026-10-04時点）
 
 - `pubspec.yaml`・`assets/exam/boki3.exam.json`（ExamConfig）・最小限の `lib/main.dart` のみ
@@ -178,12 +208,40 @@ CI上でタグを作成・pushできる。`yourwish_kentei` は他プロジェ�
 - ゲーミフィケーション要素として、連続学習日数（ストリーク）表示を追加（`lib/progress/streak_store.dart`）。
   `SharedPreferences` に最終学習日・連続日数のみを保存する軽量な仕組みで、`ProgressStore` とは独立。
   演習・模擬試験で解答を記録するたび `recordStudyToday()` を呼び、前日から続けていれば+1、
-  2日以上空いていれば1から数え直す（同じ日に何度呼んでも加算しない）。表示は `ProgressSummaryCard`
-  （ホーム画面・記録タブ）の先頭に「🔥 n日連続で学習中」として出し、0日のときは非表示にする。
-  `test/streak_store_test.dart`（日付ロジック）・`test/progress_summary_card_streak_test.dart`（表示）
-  で検証済み。なお `ProgressSummaryCard` が `SharedPreferences` に依存するようになったため、
-  これを使う既存の6テストファイル（模擬試験・練習・記録タブ関連）に `setMockInitialValues({})` を
-  追加する必要があった。
+  2日以上空いていれば1から数え直す（同じ日に何度呼んでも加算しない）。表示は後述の `StreakBadge`
+  （`app_common_kit`）差し替えにより、0日でも「今日から始めよう」と前向きな文言で常に出す形になっている。
+  `test/streak_store_test.dart`（日付ロジック）・`test/progress_summary_card_streak_test.dart`・
+  `test/progress_summary_card_streak_zero_test.dart`（表示）で検証済み。なお `ProgressSummaryCard` が
+  `SharedPreferences` に依存するようになったため、これを使う既存の6テストファイル
+  （模擬試験・練習・記録タブ関連）に `setMockInitialValues({})` を追加する必要があった。
+- 「共通基盤に実装したほうが良いモノの洗い出し」をユーザーに依頼され、`app_common_kit`（v0.2.0）の
+  `ui_kit/` を実際に読んで確認したところ、ukalab-boki3側が気づかず独自実装してしまっていたUI部品が
+  複数見つかった。見た目の一貫性とコード量削減のため、以下を共通コンポーネントに差し替えた。
+  - `StreakBadge`（`ProgressSummaryCard`の自作🔥表示を差し替え。「0日でも責めない」設計のため、
+    0日のときは「今日から始めよう」と常時表示する仕様に変わった）
+  - `ChoiceTile`/`ChoiceState`（`choice_question_view.dart`の自作`_ChoiceTile`を差し替え。
+    選択肢に「ア・イ・ウ・エ」のラベルが付くようになった）
+  - `ResultSummary`+`ProgressRing`（`practice_page.dart`の演習結果画面`_ResultView`を差し替え。
+    「正解 n / m問」→「n / m 問正解」の文言変化に合わせて`test/practice_page_review_test.dart`を修正）
+  - `EmptyState`/`ErrorState`（`records_page.dart`の「復習が必要な問題はありません」・読み込み失敗表示を差し替え）
+
+  見送った項目とその理由:
+  - `ExplanationPanel`：choice/journal/ledger/worksheetの各`ResultBanner`は「正誤ヘッダー＋詳細差分＋
+    解説」を1枚のカードで表示する自作パターンで統一されている。`ExplanationPanel`は単体で完結した
+    Cardウィジェットのため、無理に組み込むとカードの中にカードが入る二重構造になり見た目が崩れる。
+    4箇所とも自作パターンのまま統一しておく方が一貫性がある。
+  - `ResultSummary`（`mock_exam_page.dart`側）：模擬試験の結果は配点ベース（◯点/◯点）で、
+    `ResultSummary`が前提とする「correct/total問正解」という単純な正答数ベースの構造と合わない
+    （科目別の足切り判定なども表示しており、そのまま置き換えると情報が失われる）。
+  - `QuestionCard`：5種類あるQuestionView（journal/ledger/worksheet/voucher/evidence）すべての
+    問題文表示に影響する変更になり、各画面のレイアウト前提（Expanded内のスクロール計算など）への
+    影響範囲が大きいため、今回は見送った。
+  - `app_common_kit`側に既にある「StreakBadgeの表示」と対になる「ストリークの永続化ロジック」が
+    まだない、`ProgressStore`・間隔反復（`review_priority.dart`）・ダークモード切替の永続化
+    （`theme_mode_store.dart`）・問題データのロード＋キャッシュ（`exam_data_cache.dart`）・
+    `IndexedStack`配下のタブ間リアクティブ更新パターン（`progressRevision`）など、検定の種類を
+    問わず必要になる汎用ロジックがukalab-boki3側に留まっている。これらを`app_common_kit`・
+    `yourwish_kentei`に上げる作業は今回のスコープ外（差し替えではなく新規の共通化のため）。
 
 ## 2027年4月の配点変更
 
