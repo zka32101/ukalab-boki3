@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:ukalab_boki3/practice/practice_page.dart';
 import 'package:ukalab_boki3/progress/progress_store.dart';
@@ -7,6 +8,10 @@ import 'package:ukalab_boki3/progress/progress_store.dart';
 /// 「間違えた問題を復習する」機能の検証。choice型2問（うち1問をわざと
 /// 不正解にする）を解き、結果画面から復習セッションに入れることを確認する。
 void main() {
+  setUp(() {
+    SharedPreferences.setMockInitialValues({});
+  });
+
   testWidgets('間違えた問題だけを復習セッションで出題できる', (tester) async {
     final progressStore = InMemoryProgressStore();
     await tester.pumpWidget(

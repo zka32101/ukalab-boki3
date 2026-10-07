@@ -10,6 +10,7 @@ import '../ledger_input/ledger_question_view.dart';
 import '../progress/progress_revision.dart';
 import '../progress/progress_store.dart';
 import '../progress/review_priority.dart';
+import '../progress/streak_store.dart';
 import '../voucher_input/voucher_kind.dart';
 import '../voucher_input/voucher_question_view.dart';
 import '../worksheet_input/worksheet_question_view.dart';
@@ -129,7 +130,10 @@ class _SessionBodyState extends State<_SessionBody> {
           .addRecord(
             ProgressRecord(qid: qid, subjectId: subjectId, correct: correct, at: DateTime.now()),
           )
-          .then((_) => progressRevision.value++),
+          .then((_) {
+            progressRevision.value++;
+            unawaited(recordStudyToday());
+          }),
     );
   }
 

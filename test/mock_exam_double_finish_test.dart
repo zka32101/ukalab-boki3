@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:ukalab_boki3/mock_exam/mock_exam_page.dart';
 import 'package:ukalab_boki3/practice/choice_question_view.dart';
@@ -10,6 +11,10 @@ import 'package:ukalab_boki3/progress/progress_store.dart';
 /// `SharedPreferencesProgressStore.addRecord`（読み込み→追記→書き込み）が
 /// 競合して記録が壊れる不具合の回帰テスト。
 void main() {
+  setUp(() {
+    SharedPreferences.setMockInitialValues({});
+  });
+
   testWidgets('最終問題で「次へ」を連打しても解答記録が15件ちょうどになる', (tester) async {
     final progressStore = InMemoryProgressStore();
     await tester.pumpWidget(

@@ -175,6 +175,15 @@ CI上でタグを作成・pushできる。`yourwish_kentei` は他プロジェ�
   増減ルール（資産と同じ借方増加）を取り上げ、既存トピックと重複しないよう設計した
   （`classification_accrued_accounts`・`classification_electronic_records`・
   `consumption_tax_account_nature`・`account_rule_expense`）。
+- ゲーミフィケーション要素として、連続学習日数（ストリーク）表示を追加（`lib/progress/streak_store.dart`）。
+  `SharedPreferences` に最終学習日・連続日数のみを保存する軽量な仕組みで、`ProgressStore` とは独立。
+  演習・模擬試験で解答を記録するたび `recordStudyToday()` を呼び、前日から続けていれば+1、
+  2日以上空いていれば1から数え直す（同じ日に何度呼んでも加算しない）。表示は `ProgressSummaryCard`
+  （ホーム画面・記録タブ）の先頭に「🔥 n日連続で学習中」として出し、0日のときは非表示にする。
+  `test/streak_store_test.dart`（日付ロジック）・`test/progress_summary_card_streak_test.dart`（表示）
+  で検証済み。なお `ProgressSummaryCard` が `SharedPreferences` に依存するようになったため、
+  これを使う既存の6テストファイル（模擬試験・練習・記録タブ関連）に `setMockInitialValues({})` を
+  追加する必要があった。
 
 ## 2027年4月の配点変更
 

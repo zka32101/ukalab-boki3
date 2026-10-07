@@ -1,9 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:ukalab_boki3/progress/progress_store.dart';
 import 'package:ukalab_boki3/progress/progress_summary_card.dart';
 
 void main() {
+  setUp(() {
+    SharedPreferences.setMockInitialValues({});
+  });
+
   testWidgets('記録があると科目名と正答率が表示される', (tester) async {
     final store = InMemoryProgressStore();
     await store.addRecord(

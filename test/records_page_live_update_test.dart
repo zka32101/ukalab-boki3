@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:ukalab_boki3/progress/progress_revision.dart';
 import 'package:ukalab_boki3/progress/progress_store.dart';
@@ -10,6 +11,10 @@ import 'package:ukalab_boki3/records/records_page.dart';
 /// `RecordsPage` を一切作り直さずに、[progressRevision] の変化だけで
 /// 最新の解答記録を反映できることを確認する。
 void main() {
+  setUp(() {
+    SharedPreferences.setMockInitialValues({});
+  });
+
   testWidgets('マウントしたままprogressRevisionが変化すると、記録タブが自動で最新化される', (tester) async {
     final progressStore = InMemoryProgressStore();
     await tester.pumpWidget(MaterialApp(home: RecordsPage(progressStore: progressStore)));

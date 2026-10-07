@@ -1,11 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:ukalab_boki3/practice/practice_page.dart';
 import 'package:ukalab_boki3/progress/progress_store.dart';
 
 /// 間隔反復（直近の不正解を優先出題する機能）の検証。
 void main() {
+  setUp(() {
+    SharedPreferences.setMockInitialValues({});
+  });
+
   testWidgets('直近で不正解だった問題を、通常の練習セッションでも先頭に優先出題する', (tester) async {
     final progressStore = InMemoryProgressStore();
     // boki3-c-0001 を「さっき間違えた」記録として仕込んでおく。

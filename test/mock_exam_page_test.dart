@@ -1,12 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:ukalab_boki3/mock_exam/mock_exam_page.dart';
 import 'package:ukalab_boki3/practice/choice_question_view.dart';
 import 'package:ukalab_boki3/progress/progress_store.dart';
 
 void main() {
+  setUp(() {
+    SharedPreferences.setMockInitialValues({});
+  });
+
   testWidgets('模擬試験を開始し、全問解答すると結果画面が表示される', (tester) async {
     // 模擬試験画面はロード中の CircularProgressIndicator や、開始後は
     // 制限時間のカウントダウン（Timer.periodic）が動き続けるため、

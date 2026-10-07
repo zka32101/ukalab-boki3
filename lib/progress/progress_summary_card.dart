@@ -5,6 +5,7 @@ import '../exam_data/exam_data_cache.dart';
 import 'progress_revision.dart';
 import 'progress_store.dart';
 import 'progress_summary.dart';
+import 'streak_store.dart';
 
 /// ホーム画面に表示する、科目別の正答率カード。
 ///
@@ -47,7 +48,12 @@ class _ProgressSummaryCardState extends State<ProgressSummaryCard> {
   Future<_ProgressCardData> _load() async {
     final exam = await loadExamConfig();
     final records = await widget.store.loadRecords();
-    return _ProgressCardData(exam: exam, bySubject: summarizeBySubject(records));
+    final streakDays = await loadCurrentStreak();
+    return _ProgressCardData(
+      exam: exam,
+      bySubject: summarizeBySubject(records),
+      streakDays: streakDays,
+    );
   }
 
   @override
@@ -69,6 +75,19 @@ class _ProgressSummaryCardState extends State<ProgressSummaryCard> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                if (data.streakDays > 0) ...[
+                  Row(
+                    children: [
+                      const Text('🔥', style: TextStyle(fontSize: 18)),
+                      const SizedBox(width: 6),
+                      Text(
+                        '${data.streakDays}日連続で学習中',
+                        style: theme.textTheme.titleSmall?.copyWith(fontWeight: FontWeight.bold),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 12),
+                ],
                 Text('科目別の正答率', style: theme.textTheme.titleMedium),
                 const SizedBox(height: 12),
                 if (!hasAny)
@@ -93,10 +112,11 @@ class _ProgressSummaryCardState extends State<ProgressSummaryCard> {
 }
 
 class _ProgressCardData {
-  const _ProgressCardData({required this.exam, required this.bySubject});
+  const _ProgressCardData({required this.exam, required this.bySubject, required this.streakDays});
 
   final ExamConfig exam;
   final Map<String, SubjectAccuracy> bySubject;
+  final int streakDays;
 }
 
 class _SubjectProgressRow extends StatelessWidget {
