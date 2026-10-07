@@ -15,7 +15,7 @@ dependencies:
   app_common_kit:
     git:
       url: https://github.com/zka32101/app_common_kit.git
-      ref: v0.13.0
+      ref: v0.14.0
   yourwish_kentei:
     git:
       url: https://github.com/zka32101/yourwish_kentei.git
