@@ -14,6 +14,9 @@ void main() {
   });
 
   testWidgets('「学ぶ」タブから科目別の練習を開ける', (WidgetTester tester) async {
+    // 推しは動き続けるので、「動きを減らす」設定にして pumpAndSettle が終わるようにする。
+    tester.platformDispatcher.accessibilityFeaturesTestValue = const FakeAccessibilityFeatures(disableAnimations: true);
+    addTearDown(tester.platformDispatcher.clearAccessibilityFeaturesTestValue);
     await tester.pumpWidget(const ProviderScope(child: UkalabBoki3App()));
     await tester.pumpAndSettle();
 

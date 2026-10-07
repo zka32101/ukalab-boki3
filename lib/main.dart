@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'mock_exam/mock_exam_page.dart';
+import 'oshi/boki3_oshi_card.dart';
 import 'practice/practice_page.dart';
 import 'progress/progress_store.dart';
 import 'progress/progress_summary_card.dart';
@@ -61,6 +62,7 @@ class _HomePage extends StatelessWidget {
           child: Text('うかラボ 簿記3級', style: Theme.of(context).textTheme.titleLarge),
         ),
         const SizedBox(height: 16),
+        Boki3OshiCard(store: appProgressStore),
         ProgressSummaryCard(store: appProgressStore),
       ],
     );
