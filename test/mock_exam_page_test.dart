@@ -32,9 +32,9 @@ void main() {
     await tester.tap(find.text('模擬試験を開始する'));
     await tester.pump();
 
-    // 出題数（15問）ぶん、解答中は正誤を表示せず「次へ」で進む。
+    // 出題数（20問）ぶん、解答中は正誤を表示せず「次へ」で進む。
     // choice型は選択肢を1つ選ばないと「次へ」が押せない。
-    for (var i = 0; i < 15; i++) {
+    for (var i = 0; i < 20; i++) {
       expect(find.text('次へ'), findsOneWidget, reason: '$i問目で「次へ」が見つからない');
       if (find.byType(ChoiceQuestionView).evaluate().isNotEmpty) {
         await tester.tap(find.byType(InkWell).first);
@@ -48,7 +48,7 @@ void main() {
     expect(find.textContaining('点'), findsWidgets);
     expect(find.byType(FilledButton), findsWidgets);
 
-    // 「解答結果の詳細を見る」から、全15問ぶんの正誤・解説レビュー画面を開ける。
+    // 「解答結果の詳細を見る」から、全20問ぶんの正誤・解説レビュー画面を開ける。
     await tester.tap(find.text('解答結果の詳細を見る'));
     await tester.pumpAndSettle();
 
@@ -56,9 +56,9 @@ void main() {
     expect(find.text('1問目'), findsOneWidget);
     expect(find.text('不正解です'), findsWidgets);
 
-    // 一覧の末尾（15問目）までスクロールして表示できることを確認する。
-    await tester.scrollUntilVisible(find.text('15問目'), 500, scrollable: find.byType(Scrollable));
-    expect(find.text('15問目'), findsOneWidget);
+    // 一覧の末尾（20問目）までスクロールして表示できることを確認する。
+    await tester.scrollUntilVisible(find.text('20問目'), 500, scrollable: find.byType(Scrollable));
+    expect(find.text('20問目'), findsOneWidget);
 
     await tester.tap(find.byType(BackButton));
     await tester.pumpAndSettle();

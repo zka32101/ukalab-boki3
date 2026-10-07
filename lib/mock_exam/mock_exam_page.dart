@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:yourwish_kentei/yourwish_kentei.dart';
 
 import '../evidence_input/evidence_question_view.dart';
+import '../exam_data/current_level.dart';
 import '../exam_data/exam_data_cache.dart';
 import '../journal_input/journal_question_view.dart';
 import '../ledger_input/ledger_question_view.dart';
@@ -40,13 +41,16 @@ class _MockExamPageState extends State<MockExamPage> {
 
   Future<_MockExamData> _load() async {
     final exam = await loadExamConfig();
-    final level = exam.level('level3_from_2027_04');
+    final levelId = currentLevelId();
+    final level = exam.level(levelId);
     if (level == null) {
-      throw StateError('level3_from_2027_04 が見つかりません');
+      throw StateError('$levelId が見つかりません');
     }
 
     final questions = await loadQuestions();
-    final pool = questions.where((q) => q.levelId == level.levelId);
+    // 問題データの levelId は null（全levelで共通利用）のため、null か
+    // 現在のlevelに一致するものを出題プールにする。
+    final pool = questions.where((q) => q.levelId == null || q.levelId == level.levelId);
 
     return _MockExamData(exam: exam, level: level, pool: pool.toList());
   }
