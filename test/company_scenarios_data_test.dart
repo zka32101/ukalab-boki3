@@ -19,7 +19,7 @@ void main() {
     final issues = validateCompanyScenarios(parsed.scenarios, exam: exam);
     expect(issues, isEmpty, reason: '$issues');
 
-    expect(parsed.scenarios, hasLength(3));
+    expect(parsed.scenarios, hasLength(5));
   });
 
   test('scenarioId に重複がない', () {

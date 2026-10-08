@@ -30,5 +30,7 @@ void main() {
     expect(find.text('カフェどんぐり'), findsOneWidget);
     expect(find.text('雑貨屋ことり'), findsOneWidget);
     expect(find.text('フリーランス事務所'), findsOneWidget);
+    expect(find.text('法律事務所つくし'), findsOneWidget);
+    expect(find.text('卸売商事にじいろ'), findsOneWidget);
   });
 }
