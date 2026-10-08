@@ -375,7 +375,13 @@ Chromiumをヘッドレスモードで動かし、スクリーンショットで
 1. ネット試験の解答入力方式とアプリの入力UIの合わせ方
 2. 公式の出題区分表（現行版）の取得と科目一覧への落とし込み
 3. 「日商簿記」の表記の可否（商標・誤認）、J-PlatPat・専門家確認
-4. 問題の出典（過去問の著作権。自作・自動生成を基本にする）
+4. ~~問題の出典（過去問の著作権。自作・自動生成を基本にする）~~ → **対応済み（運用中）**。
+   問題（`boki3.questions.jsonl`）・用語（`boki3.terms.jsonl`）・会社経営モードのシナリオ
+   （`boki3.company_scenarios.jsonl`）すべてで `source`（`original`/`statute`/`licensed`）・
+   `sourceRef`（根拠の説明）を必須とし、過去問の転載はせず自作・出題区分表ベースの例題のみを収録する
+   方針で統一。各データの配信前検証（`validateQuestions`・`validateTerms`・`validateCompanyScenarios`）
+   で出典の欠落を機械チェックし、`test/questions_data_test.dart`・`test/terms_data_test.dart`・
+   `test/company_scenarios_data_test.dart`で継続的に検証している
 5. 統一試験・ネット試験の日程（第175回の日程が判明したら、上記「2027年4月の配点変更」の
    TODOのとおりテストを追加する）
 6. 会社経営モードの無料範囲（Phase 1〜3実装済み、全5シナリオ無料公開。アプリ全体の課金導線を
