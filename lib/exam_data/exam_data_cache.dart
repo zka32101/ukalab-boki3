@@ -6,6 +6,7 @@ import 'package:yourwish_kentei/yourwish_kentei.dart';
 Future<List<Question>>? _questionsFuture;
 Future<ExamConfig>? _examConfigFuture;
 Future<List<Term>>? _termsFuture;
+Future<List<CompanyScenario>>? _companyScenariosFuture;
 
 /// `assets/exam/boki3.questions.jsonl` を読み込み・パースする。
 ///
@@ -48,4 +49,19 @@ Future<List<Term>> _loadTerms() async {
     throw StateError('用語集データの読み込みに失敗しました: ${parsed.issues}');
   }
   return parsed.terms;
+}
+
+/// `assets/exam/boki3.company_scenarios.jsonl`（会社経営モード）を読み込み・
+/// パースする（同様にキャッシュする）。
+Future<List<CompanyScenario>> loadCompanyScenarios() {
+  return _companyScenariosFuture ??= _loadCompanyScenarios();
+}
+
+Future<List<CompanyScenario>> _loadCompanyScenarios() async {
+  final text = await rootBundle.loadString('assets/exam/boki3.company_scenarios.jsonl');
+  final parsed = parseCompanyScenariosJsonl(text);
+  if (parsed.issues.isNotEmpty) {
+    throw StateError('会社経営モードのシナリオデータの読み込みに失敗しました: ${parsed.issues}');
+  }
+  return parsed.scenarios;
 }

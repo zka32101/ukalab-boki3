@@ -454,3 +454,33 @@ Chromiumをヘッドレスモードで動かし、スクリーンショットで
   作り、「用語集で復習する」→科目絞り込み済みの一覧が開くまで、console error 0件）も実施済み
 - 「既存の進捗データ（`ProgressSummaryCard`）と用語集を、新しいデータモデルを増やさずに結ぶ」という、
   前回の解説連携と同じ設計思想の横展開
+
+## 会社経営モード Phase 1（2026-10-08追加）
+
+`docs/company_mode_v1_design.md` の企画に基づき実装。仕訳ドリブン型・初回3シナリオ無料公開の方針どおり。
+
+- `yourwish_kentei`（v0.14.0）に `CompanyScenario`・`CompanyTurn`（`lib/company_mode/company_scenario.dart`）
+  と配信前検証 `validateCompanyScenarios`（`lib/content/company_mode_validator.dart`）を追加。既存の
+  `JournalAnswer`/`JournalLine`をそのまま再利用し、取引イベント文（`eventText`）を添えるだけで採点ロジックは
+  増やしていない
+- `lib/company_mode/company_ledger.dart`（`CompanyLedger`・`buildCompanyLedger`）で、複数ターンぶんの仕訳を
+  積み上げて勘定科目ごとの残高・資産/負債/純資産/収益/費用の合計・当期純利益を計算する。勘定科目グループの
+  判定（`AccountGroup`）はアプリ固有の科目マスタ（`account_catalog.dart`）に依存するため、`yourwish_kentei`
+  側ではなくここ（ukalab-boki3側）に置いた
+- `lib/company_mode/company_mode_session.dart`（`CompanyModeSession`）でシナリオの進行を管理。不正解でも
+  正解仕訳を帳簿に反映して次のターンへ進む（詰みを防ぐ設計、不正解回数は記録するだけで進行に影響しない）
+- `lib/company_mode/company_scenario_list_page.dart`（一覧）・`company_scenario_play_page.dart`（導入→
+  ターン進行→結果の貸借対照表・損益計算書表示を1画面で管理）を実装。ターンの仕訳入力・採点には既存の
+  `JournalQuestionView`をそのまま使う。「学ぶ」タブに「実践する」セクションと「会社を経営する」ボタンを追加
+- `assets/exam/boki3.company_scenarios.jsonl`に3シナリオを作成（カフェどんぐり〈飲食業・6ターン〉・
+  雑貨屋ことり〈小売業・7ターン、売掛金の計上・回収を含む〉・フリーランス事務所〈サービス業・6ターン、
+  決算整理〈減価償却〉を含む〉）。全ターンの貸借一致をスクリプトで確認済み
+- `test/company_ledger_test.dart`（残高・財務諸表集計のロジック検証）・
+  `test/company_scenarios_data_test.dart`（データ品質検証）・
+  `test/company_scenario_play_test.dart`（1シナリオを最後まで正しく仕訳し、結果画面に貸借対照表・損益計算書
+  が表示されるまでのE2E）・`test/learn_company_mode_navigation_test.dart`（「学ぶ」タブからの導線）を追加。
+  `flutter analyze` 0件・`flutter test`（73件）成功、Webビルド＋ヘッドレスブラウザでの表示確認
+  （「学ぶ」タブ→「会社を経営する」→シナリオ一覧→導入画面→1ターン目の仕訳入力画面まで、console error 0件）
+  も実施済み
+- Phase 2（結果の保存・記録タブへの表示、苦手科目連携との統合）・Phase 3（シナリオ追加・有料化検討）は
+  `docs/company_mode_v1_design.md`のフェーズ分割のとおり未着手

@@ -2,6 +2,7 @@ import 'package:app_common_kit/app_common_kit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import 'company_mode/company_scenario_list_page.dart';
 import 'mock_exam/mock_exam_page.dart';
 import 'oshi/boki3_oshi_card.dart';
 import 'practice/practice_page.dart';
@@ -130,6 +131,19 @@ class _LearnPage extends StatelessWidget {
             ),
             icon: const Icon(Icons.menu_book_outlined),
             label: const Align(alignment: Alignment.centerLeft, child: Text('用語集')),
+          ),
+        ),
+        const SizedBox(height: 24),
+        Text('実践する', style: theme.textTheme.titleMedium),
+        const SizedBox(height: 8),
+        SizedBox(
+          width: double.infinity,
+          child: OutlinedButton.icon(
+            onPressed: () => Navigator.of(context).push(
+              MaterialPageRoute(builder: (_) => const CompanyScenarioListPage()),
+            ),
+            icon: const Icon(Icons.storefront_outlined),
+            label: const Align(alignment: Alignment.centerLeft, child: Text('会社を経営する')),
           ),
         ),
       ],
