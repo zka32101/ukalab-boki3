@@ -8,7 +8,9 @@ import 'package:ukalab_boki3/progress/progress_summary_card.dart';
 void main() {
   testWidgets('連続学習日数が1日以上あるとストリーク表示が出る', (tester) async {
     SharedPreferences.setMockInitialValues({});
-    await recordStudyToday(now: DateTime(2026, 10, 6));
+    // 絶対日付をハードコードすると、テスト実行日が進むにつれて「2日以上空いた」
+    // 扱いになり表示が消えてしまうため、実行時刻からの相対日付で記録する。
+    await recordStudyToday(now: DateTime.now().subtract(const Duration(days: 1)));
 
     final store = InMemoryProgressStore();
     await tester.pumpWidget(

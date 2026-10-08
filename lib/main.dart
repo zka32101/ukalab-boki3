@@ -10,6 +10,7 @@ import 'progress/progress_summary_card.dart';
 import 'records/records_page.dart';
 import 'settings/settings_page.dart';
 import 'startup/legacy_key_migration.dart';
+import 'term/term_list_page.dart';
 
 /// 演習・模擬試験の解答記録の保存先。端末内保存（アプリ全体で共有）。
 final ProgressStore appProgressStore = SharedPreferencesProgressStore();
@@ -117,6 +118,19 @@ class _LearnPage extends StatelessWidget {
             MaterialPageRoute(builder: (_) => PracticePage(progressStore: appProgressStore)),
           ),
           child: const Text('すべての問題を練習する（問題集）'),
+        ),
+        const SizedBox(height: 24),
+        Text('用語を調べる', style: theme.textTheme.titleMedium),
+        const SizedBox(height: 8),
+        SizedBox(
+          width: double.infinity,
+          child: OutlinedButton.icon(
+            onPressed: () => Navigator.of(context).push(
+              MaterialPageRoute(builder: (_) => const TermListPage()),
+            ),
+            icon: const Icon(Icons.menu_book_outlined),
+            label: const Align(alignment: Alignment.centerLeft, child: Text('用語集')),
+          ),
         ),
       ],
     );

@@ -380,3 +380,23 @@ Chromiumをヘッドレスモードで動かし、スクリーンショットで
    TODOのとおりテストを追加する）
 6. 会社経営モードの無料範囲、初回リリースに含めるか
 7. 本試験に持ち込める電卓の条件、ネット試験の画面構成
+
+## 用語集機能（2026-10-08追加）
+
+- 専門用語の解説（決定50「専門用語の解説（全アプリ共通）」）を簿記3級アプリにも導入。`yourwish_kentei`の
+  `Term`モデル・`term_validator.dart`、`app_common_kit`の`TermCard`/`showTermCard`（既存の汎用コンポーネント）
+  をそのまま再利用し、ukalab-boki3側は用語データと一覧画面のみを新規実装した
+- `assets/exam/boki3.terms.jsonl`に15語を作成（仕訳・複式簿記・借方・貸方・試算表・精算表・貸借対照表・
+  損益計算書・減価償却・減価償却累計額・売掛金・買掛金・補助簿・伝票・証ひょう）。全て`source: "original"`、
+  出典は商工会議所出題区分表ベース
+- `lib/exam_data/exam_data_cache.dart`に`loadTerms()`を追加（既存のJSONLキャッシュパターンを踏襲）
+- `lib/term/term_list_page.dart`（`TermListPage`）を新規実装。検索フィールドで絞り込み可能な一覧から
+  `showTermCard`で詳細（①ひとことで言うと→②正確な意味→③たとえ話→④よくある間違い→⑤関連用語→⑥関連問題）
+  を開ける。関連用語をタップすると再帰的に別の用語カードへ遷移できる
+- 「学ぶ」タブに「用語を調べる」セクションと「用語集」ボタンを追加して導線を用意
+- `test/terms_data_test.dart`（データ品質検証）・`test/term_list_page_test.dart`（一覧→カード表示）・
+  `test/term_list_page_search_test.dart`（検索絞り込み）・`test/learn_term_list_navigation_test.dart`
+  （「学ぶ」タブからの導線）を追加。`flutter analyze` 0件・`flutter test`（63件）成功、Webビルド＋
+  ヘッドレスブラウザでの表示確認（「学ぶ」タブ→「用語集」ボタン→一覧表示まで、console error 0件）も実施済み
+- ついでに`test/progress_summary_card_streak_test.dart`の既存バグ（`DateTime(2026, 10, 6)`という絶対日付
+  ハードコードのため、実行日が進むにつれてテストが壊れていた）を発見し、相対日付指定に修正した
