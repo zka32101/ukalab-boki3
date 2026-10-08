@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:yourwish_kentei/yourwish_kentei.dart';
 
+import '../term/explanation_with_terms.dart';
 import 'ledger_table.dart' show LedgerColumnKeyLabel;
 
 /// 答え合わせの結果（正解セル数＋誤りの内訳）を表示する。
@@ -51,7 +52,7 @@ class LedgerResultBanner extends StatelessWidget {
             if (diff.kind != LedgerCellDiffKind.correct) _buildDiffLine(theme, diff, rowsByIndex),
           if (explanation != null && explanation!.isNotEmpty) ...[
             const Divider(),
-            Text(explanation!, style: theme.textTheme.bodyMedium),
+            ExplanationWithTerms(explanation: explanation!),
           ],
         ],
       ),

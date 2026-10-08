@@ -3,6 +3,7 @@ import 'package:yourwish_kentei/yourwish_kentei.dart';
 
 import '../journal_input/journal_result_banner.dart';
 import '../ledger_input/ledger_result_banner.dart';
+import '../term/explanation_with_terms.dart';
 import '../worksheet_input/worksheet_result_banner.dart';
 
 /// 模擬試験終了後、全問の正誤・自分の解答・正解・解説を振り返る画面。
@@ -130,7 +131,7 @@ class _ChoiceReview extends StatelessWidget {
             Text('正解: ${question.choices[question.answerIndex]}', style: theme.textTheme.bodySmall),
           if (question.explanation.isNotEmpty) ...[
             const Divider(),
-            Text(question.explanation, style: theme.textTheme.bodyMedium),
+            ExplanationWithTerms(explanation: question.explanation),
           ],
         ],
       ),

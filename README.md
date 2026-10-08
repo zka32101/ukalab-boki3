@@ -400,3 +400,39 @@ Chromiumをヘッドレスモードで動かし、スクリーンショットで
   ヘッドレスブラウザでの表示確認（「学ぶ」タブ→「用語集」ボタン→一覧表示まで、console error 0件）も実施済み
 - ついでに`test/progress_summary_card_streak_test.dart`の既存バグ（`DateTime(2026, 10, 6)`という絶対日付
   ハードコードのため、実行日が進むにつれてテストが壊れていた）を発見し、相対日付指定に修正した
+
+### 用語集の拡張（2026-10-08追加・その2）: 「覚えた」チェック＋フィルタ、解説からの用語集連携
+
+- `TermListPage`の各行にチェックボックスを追加し、「覚えた」用語の`termId`を`lib/term/learned_terms_store.dart`
+  （`LearnedTermsStore`、`SharedPreferences`永続化。`SharedPreferencesProgressStore`と同じ「永続化の具体実装
+  だけをukalab-boki3側に持つ」パターン）に保存するようにした。一覧上部に「すべて／覚えた／未習得」の
+  `SegmentedButton`を追加し、未習得の用語だけに絞って復習できる
+- 演習・模擬試験の答え合わせ後に表示される解説文（`journal`/`choice`/`worksheet`/`ledger`の各
+  `*ResultBanner`、模擬試験振り返り画面`MockExamReviewPage`）から、用語集の見出し語を検索・リンクできる
+  ようにした。`lib/term/explanation_with_terms.dart`（`ExplanationWithTerms`）が解説文の中に含まれる
+  見出し語を`Term`一覧との文字列マッチで検出し、タップで`showTermCard`を開くチップとして解説の下に添える。
+  **設問文・選択肢にはチップを出さない**（答える前に用語が分かるとヒントになってしまうため、答え合わせ後の
+  解説にのみ表示する設計上の制約）
+- `TermListPage`と`ExplanationWithTerms`で重複していた「`relatedTermIds`を解決して`showTermCard`を開き、
+  関連用語タップで次のカードへ遷移する」ロジックを`lib/term/term_card_opener.dart`（`openTermCard`関数）に
+  共通化した
+- `test/term_list_learned_filter_test.dart`（チェック→フィルタの確認）・
+  `test/explanation_with_terms_test.dart`（設問中はチップなし→解答後にチップが出てタップでカードが開く
+  ことの確認）を追加。`flutter analyze` 0件・`flutter test`（65件）成功
+
+### 設計思想のメモ（他機能にも展開したい方針）
+
+- **既存の汎用コンポーネントは自分で作り直さず再利用する**: `Term`/`TermCard`/`showTermCard`は
+  `yourwish_kentei`・`app_common_kit`（全アプリ共通ライブラリ）側に既にあったため、ukalab-boki3側は
+  用語データ（JSONL）とそれをつなぐ薄い画面・ロジックだけを足した。アプリ固有の実装を増やさない
+- **「教材／解説コンテンツの中の重要語」を、独立した一覧画面だけでなく、学習の文脈（解説文）からも
+  たどれるようにする**という横展開可能なパターン。データ同士を明示的なID参照で結ばず、既存の文字列
+  （用語の見出し語）の出現を検出して自動的にリンクを張る軽量な方式を採用した。Question側に
+  `relatedTermIds`のような新しいフィールドを追加する（yourwish_kentei側の変更が要る）よりコストが低く、
+  将来語彙を追加・修正してもリンクが自動的に追従する利点がある
+- **「ヒントになる場所には出さない」という表示タイミングの制約を明示する**: 解答前（設問文・選択肢）には
+  絶対に出さず、答え合わせ後（解説）にのみ出す。学習支援機能を追加するときは、それが正解を導くヒントに
+  ならないかを毎回検討する
+- **「覚えた／未習得」のようなユーザー自身の進捗管理は`SharedPreferences`で端末内完結させる**
+  （`LearnedTermsStore`は`SharedPreferencesProgressStore`と同じ最小限の実装パターン）。サーバー同期は
+  将来の検討事項とし、今は作らない

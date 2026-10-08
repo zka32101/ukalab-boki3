@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:yourwish_kentei/yourwish_kentei.dart';
 
+import '../term/explanation_with_terms.dart';
 import 'account_catalog.dart';
 
 /// 答え合わせの結果（全体の正誤＋行ごとの誤りの内訳）を表示する。
@@ -39,7 +40,7 @@ class JournalResultBanner extends StatelessWidget {
             if (diff.kind != JournalLineDiffKind.correct) _buildDiffLine(theme, diff),
           if (explanation != null && explanation!.isNotEmpty) ...[
             const Divider(),
-            Text(explanation!, style: theme.textTheme.bodyMedium),
+            ExplanationWithTerms(explanation: explanation!),
           ],
         ],
       ),

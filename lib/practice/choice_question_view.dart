@@ -1,6 +1,8 @@
 import 'package:app_common_kit/app_common_kit.dart';
 import 'package:flutter/material.dart';
 
+import '../term/explanation_with_terms.dart';
+
 /// 選択式（type: choice）問題1問分の画面。問題文・選択肢・答え合わせをまとめる。
 /// [JournalQuestionView]（lib/journal_input/）と並ぶ、第2問の理論問題向けの
 /// シンプルな選択式UI。
@@ -155,7 +157,7 @@ class _ChoiceResultBanner extends StatelessWidget {
           ),
           if (explanation != null && explanation!.isNotEmpty) ...[
             const Divider(),
-            Text(explanation!, style: theme.textTheme.bodyMedium),
+            ExplanationWithTerms(explanation: explanation!),
           ],
         ],
       ),

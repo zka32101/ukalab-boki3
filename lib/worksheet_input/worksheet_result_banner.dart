@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:yourwish_kentei/yourwish_kentei.dart';
 
 import '../journal_input/account_catalog.dart';
+import '../term/explanation_with_terms.dart';
 import 'worksheet_table.dart' show WorksheetColumnLabel;
 
 /// 答え合わせの結果（正解セル数＋誤りの内訳）を表示する。
@@ -42,7 +43,7 @@ class WorksheetResultBanner extends StatelessWidget {
             if (diff.kind != WorksheetCellDiffKind.correct) _buildDiffLine(theme, diff),
           if (explanation != null && explanation!.isNotEmpty) ...[
             const Divider(),
-            Text(explanation!, style: theme.textTheme.bodyMedium),
+            ExplanationWithTerms(explanation: explanation!),
           ],
         ],
       ),
