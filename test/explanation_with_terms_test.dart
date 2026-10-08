@@ -6,11 +6,11 @@ import 'package:ukalab_boki3/practice/choice_question_view.dart';
 void main() {
   testWidgets('解説文に用語集の見出し語が含まれると、タップで用語カードを開けるチップが出る', (tester) async {
     await tester.pumpWidget(
-      MaterialApp(
+      const MaterialApp(
         home: Scaffold(
           body: ChoiceQuestionView(
             prompt: 'ダミーの設問文',
-            choices: const ['ア', 'イ'],
+            choices: ['ア', 'イ'],
             answerIndex: 0,
             explanation: '仕訳は取引を借方と貸方に分けて記録する。',
           ),

@@ -436,3 +436,20 @@ Chromiumをヘッドレスモードで動かし、スクリーンショットで
 - **「覚えた／未習得」のようなユーザー自身の進捗管理は`SharedPreferences`で端末内完結させる**
   （`LearnedTermsStore`は`SharedPreferencesProgressStore`と同じ最小限の実装パターン）。サーバー同期は
   将来の検討事項とし、今は作らない
+
+### 苦手科目から用語集への連携（2026-10-08追加・その3）
+
+- ホーム画面・記録タブの科目別正答率カード（`ProgressSummaryCard`）で正答率70%未満（苦手科目）になった
+  科目の行に「用語集で復習する」ボタンを追加した。タップすると、その科目（`Term.subjectId`）かつ
+  未習得の用語だけに絞った`TermListPage`が開く
+- `assets/exam/boki3.terms.jsonl`の15語のうち`subjectId`未設定だった9語（仕訳・複式簿記・試算表・精算表・
+  貸借対照表・損益計算書・減価償却・補助簿・証ひょう）に、出題区分表上の分類（仕訳／帳簿・伝票等／決算）に
+  沿って`subjectId`を補完し、全15語が3科目いずれかに属するようにした
+- `TermListPage`に`initialSubjectId`・`initialSubjectLabel`を追加。指定時は科目一致＋未習得で初期絞り込みし、
+  AppBarタイトルに科目名を出す。絞り込みチップの×タップで解除し全科目・全フィルタに戻れる
+- `test/weak_subject_term_review_test.dart`（苦手科目カード→用語集起動の確認）・
+  `test/term_list_subject_filter_test.dart`（科目絞り込み→解除の確認）を追加。`flutter analyze` 0件・
+  `flutter test`（67件）成功、Webビルド＋ヘッドレスブラウザでの表示確認（わざと不正解にして苦手科目を
+  作り、「用語集で復習する」→科目絞り込み済みの一覧が開くまで、console error 0件）も実施済み
+- 「既存の進捗データ（`ProgressSummaryCard`）と用語集を、新しいデータモデルを増やさずに結ぶ」という、
+  前回の解説連携と同じ設計思想の横展開

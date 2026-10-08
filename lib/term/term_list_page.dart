@@ -13,8 +13,15 @@ enum _LearnedFilter { all, learned, unlearned }
 ///
 /// 一覧の各用語には「覚えた」チェックを付けられ、[LearnedTermsStore] に
 /// 端末内保存する。「未習得」に絞って復習したい用語だけを表示できる。
+///
+/// [initialSubjectId]・[initialSubjectLabel] を渡すと、その科目（`Term.subjectId`）
+/// かつ未習得の用語だけに絞った状態で開く（苦手科目カードからの導線向け）。
+/// 「すべての科目を見る」で絞り込みを解除できる。
 class TermListPage extends StatefulWidget {
-  const TermListPage({super.key});
+  const TermListPage({super.key, this.initialSubjectId, this.initialSubjectLabel});
+
+  final String? initialSubjectId;
+  final String? initialSubjectLabel;
 
   @override
   State<TermListPage> createState() => _TermListPageState();
@@ -26,11 +33,14 @@ class _TermListPageState extends State<TermListPage> {
   final _searchController = TextEditingController();
   String _query = '';
   Set<String> _learnedIds = {};
-  _LearnedFilter _filter = _LearnedFilter.all;
+  late _LearnedFilter _filter;
+  late String? _subjectFilter;
 
   @override
   void initState() {
     super.initState();
+    _subjectFilter = widget.initialSubjectId;
+    _filter = widget.initialSubjectId != null ? _LearnedFilter.unlearned : _LearnedFilter.all;
     _termsFuture = loadTerms();
     _searchController.addListener(() {
       setState(() => _query = _searchController.text.trim());
@@ -61,8 +71,11 @@ class _TermListPageState extends State<TermListPage> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final subjectLabel = widget.initialSubjectLabel;
     return Scaffold(
-      appBar: AppBar(title: const Text('用語集')),
+      appBar: AppBar(
+        title: Text(_subjectFilter != null && subjectLabel != null ? '用語集（$subjectLabel）' : '用語集'),
+      ),
       body: FutureBuilder<List<Term>>(
         future: _termsFuture,
         builder: (context, snapshot) {
@@ -81,7 +94,8 @@ class _TermListPageState extends State<TermListPage> {
               _LearnedFilter.learned => isLearned,
               _LearnedFilter.unlearned => !isLearned,
             };
-            return matchesQuery && matchesFilter;
+            final matchesSubject = _subjectFilter == null || t.subjectId == _subjectFilter;
+            return matchesQuery && matchesFilter && matchesSubject;
           }).toList();
 
           return Column(
@@ -113,6 +127,18 @@ class _TermListPageState extends State<TermListPage> {
                   ),
                 ),
               ),
+              if (_subjectFilter != null && subjectLabel != null)
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
+                  child: Align(
+                    alignment: Alignment.centerLeft,
+                    child: ActionChip(
+                      avatar: const Icon(Icons.filter_alt, size: 16),
+                      label: Text('「$subjectLabel」で絞り込み中 ×'),
+                      onPressed: () => setState(() => _subjectFilter = null),
+                    ),
+                  ),
+                ),
               const SizedBox(height: 8),
               Expanded(
                 child: filtered.isEmpty

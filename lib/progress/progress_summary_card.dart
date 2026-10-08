@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:yourwish_kentei/yourwish_kentei.dart';
 
 import '../exam_data/exam_data_cache.dart';
+import '../term/term_list_page.dart';
 import 'progress_revision.dart';
 import 'progress_summary.dart';
 
@@ -88,7 +89,11 @@ class _ProgressSummaryCardState extends State<ProgressSummaryCard> {
                     if (data.bySubject[subject.subjectId] case final s? when s.total > 0)
                       Padding(
                         padding: const EdgeInsets.only(bottom: 10),
-                        child: _SubjectProgressRow(name: subject.name, progress: s),
+                        child: _SubjectProgressRow(
+                          subjectId: subject.subjectId,
+                          name: subject.name,
+                          progress: s,
+                        ),
                       ),
               ],
             ),
@@ -108,8 +113,9 @@ class _ProgressCardData {
 }
 
 class _SubjectProgressRow extends StatelessWidget {
-  const _SubjectProgressRow({required this.name, required this.progress});
+  const _SubjectProgressRow({required this.subjectId, required this.name, required this.progress});
 
+  final String subjectId;
   final String name;
   final SubjectAccuracy progress;
 
@@ -151,6 +157,19 @@ class _SubjectProgressRow extends StatelessWidget {
             valueColor: AlwaysStoppedAnimation(barColor),
           ),
         ),
+        if (isWeak)
+          Align(
+            alignment: Alignment.centerRight,
+            child: TextButton.icon(
+              onPressed: () => Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (_) => TermListPage(initialSubjectId: subjectId, initialSubjectLabel: name),
+                ),
+              ),
+              icon: const Icon(Icons.menu_book, size: 16),
+              label: const Text('用語集で復習する'),
+            ),
+          ),
       ],
     );
   }
