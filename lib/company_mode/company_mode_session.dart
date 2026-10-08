@@ -14,12 +14,15 @@ class CompanyModeSession {
   final CompanyScenario scenario;
 
   int _index = 0;
-  int _wrongCount = 0;
   final List<JournalLine> _allLines = [];
+  final List<CompanyTurn> _wrongTurns = [];
 
   int get index => _index;
   int get turnCount => scenario.turns.length;
-  int get wrongCount => _wrongCount;
+  int get wrongCount => _wrongTurns.length;
+
+  /// 不正解だったターン（出題順）。結果画面の「間違えたターンを振り返る」に使う。
+  List<CompanyTurn> get wrongTurns => List.unmodifiable(_wrongTurns);
 
   /// 現在のターン。全ターンを終えたら null（結果画面に遷移する合図）。
   CompanyTurn? get current => _index < scenario.turns.length ? scenario.turns[_index] : null;
@@ -30,7 +33,7 @@ class CompanyModeSession {
   void recordAndAdvance({required bool correct}) {
     final turn = current;
     if (turn == null) return;
-    if (!correct) _wrongCount++;
+    if (!correct) _wrongTurns.add(turn);
     _allLines.addAll(turn.answer.lines);
     _index++;
   }

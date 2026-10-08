@@ -2,17 +2,20 @@ import 'package:app_common_kit/app_common_kit.dart';
 import 'package:flutter/material.dart';
 import 'package:yourwish_kentei/yourwish_kentei.dart';
 
+import '../company_mode/company_mode_history_store.dart';
 import '../exam_data/exam_data_cache.dart';
 import '../practice/practice_page.dart';
 import '../progress/progress_revision.dart';
 import '../progress/progress_summary_card.dart';
 
 /// 「記録」タブ。科目別正答率（ホーム画面と同じカード）に加えて、間隔反復で
-/// 復習待ちになっている問題の一覧と、まとめて復習セッションを開くボタンを表示する。
+/// 復習待ちになっている問題の一覧・まとめて復習セッションを開くボタン、
+/// 会社経営モードのプレイ履歴を表示する。
 class RecordsPage extends StatefulWidget {
-  const RecordsPage({super.key, required this.progressStore});
+  const RecordsPage({super.key, required this.progressStore, required this.companyModeHistoryStore});
 
   final ProgressStore progressStore;
+  final CompanyModeHistoryStore companyModeHistoryStore;
 
   @override
   State<RecordsPage> createState() => _RecordsPageState();
@@ -55,7 +58,13 @@ class _RecordsPageState extends State<RecordsPage> {
         if (byQid[qid] case final q?) q,
     ];
 
-    return _RecordsData(reviewQuestions: reviewQuestions, subjectNameOf: subjectNameOf);
+    final companyModeResults = await widget.companyModeHistoryStore.loadResults();
+
+    return _RecordsData(
+      reviewQuestions: reviewQuestions,
+      subjectNameOf: subjectNameOf,
+      companyModeResults: companyModeResults.reversed.toList(),
+    );
   }
 
   @override
@@ -85,6 +94,7 @@ class _RecordsPageState extends State<RecordsPage> {
               subjectNameOf: data.subjectNameOf,
               progressStore: widget.progressStore,
             ),
+            _CompanyModeHistorySection(results: data.companyModeResults),
           ],
         );
       },
@@ -93,10 +103,15 @@ class _RecordsPageState extends State<RecordsPage> {
 }
 
 class _RecordsData {
-  const _RecordsData({required this.reviewQuestions, required this.subjectNameOf});
+  const _RecordsData({
+    required this.reviewQuestions,
+    required this.subjectNameOf,
+    required this.companyModeResults,
+  });
 
   final List<Question> reviewQuestions;
   final Map<String, String> subjectNameOf;
+  final List<CompanyModeResult> companyModeResults;
 }
 
 class _ReviewSection extends StatelessWidget {
@@ -147,6 +162,70 @@ class _ReviewSection extends StatelessWidget {
             ],
           ],
         ),
+      ),
+    );
+  }
+}
+
+/// 会社経営モードのプレイ履歴（直近5件）。
+class _CompanyModeHistorySection extends StatelessWidget {
+  const _CompanyModeHistorySection({required this.results});
+
+  final List<CompanyModeResult> results;
+
+  @override
+  Widget build(BuildContext context) {
+    if (results.isEmpty) return const SizedBox.shrink();
+    final theme = Theme.of(context);
+    return Card(
+      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text('経営履歴', style: theme.textTheme.titleMedium),
+            const SizedBox(height: 12),
+            for (final r in results.take(5)) _CompanyModeResultTile(result: r),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _CompanyModeResultTile extends StatelessWidget {
+  const _CompanyModeResultTile({required this.result});
+
+  final CompanyModeResult result;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final isProfit = result.netIncome >= 0;
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 10),
+      child: Row(
+        children: [
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(result.companyName, style: theme.textTheme.bodyMedium),
+                Text(
+                  '仕訳の正答: ${result.correctCount} / ${result.turnCount}ターン',
+                  style: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.outline),
+                ),
+              ],
+            ),
+          ),
+          Text(
+            '${isProfit ? '+' : ''}${result.netIncome}円',
+            style: theme.textTheme.bodyMedium?.copyWith(
+              color: isProfit ? theme.colorScheme.primary : theme.colorScheme.error,
+            ),
+          ),
+        ],
       ),
     );
   }

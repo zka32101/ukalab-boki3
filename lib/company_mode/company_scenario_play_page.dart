@@ -1,9 +1,14 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:yourwish_kentei/yourwish_kentei.dart';
 
 import '../journal_input/account_catalog.dart';
 import '../journal_input/journal_question_view.dart';
+import '../journal_input/journal_result_banner.dart';
+import '../progress/progress_revision.dart';
 import 'company_ledger.dart';
+import 'company_mode_history_store.dart';
 import 'company_mode_session.dart';
 
 /// 1シナリオを通して遊ぶ画面。導入→各ターンの仕訳入力→最終結果（累積の
@@ -12,9 +17,12 @@ import 'company_mode_session.dart';
 /// 各ターンの仕訳入力・採点には既存の [JournalQuestionView]・`judgeJournal` を
 /// そのまま使う（`docs/company_mode_v1_design.md` の設計方針）。
 class CompanyScenarioPlayPage extends StatefulWidget {
-  const CompanyScenarioPlayPage({super.key, required this.scenario});
+  const CompanyScenarioPlayPage({super.key, required this.scenario, required this.historyStore});
 
   final CompanyScenario scenario;
+
+  /// プレイ結果の保存先（「記録」タブの経営履歴に表示する）。
+  final CompanyModeHistoryStore historyStore;
 
   @override
   State<CompanyScenarioPlayPage> createState() => _CompanyScenarioPlayPageState();
@@ -43,6 +51,23 @@ class _CompanyScenarioPlayPageState extends State<CompanyScenarioPlayPage> {
       _session.recordAndAdvance(correct: correct);
       _lastAnswerCorrect = null;
     });
+    if (_session.isFinished) {
+      unawaited(_saveResult());
+    }
+  }
+
+  Future<void> _saveResult() async {
+    await widget.historyStore.addResult(
+      CompanyModeResult(
+        scenarioId: widget.scenario.scenarioId,
+        companyName: widget.scenario.companyName,
+        correctCount: _session.turnCount - _session.wrongCount,
+        turnCount: _session.turnCount,
+        netIncome: _session.ledger.netIncome,
+        playedAt: DateTime.now(),
+      ),
+    );
+    progressRevision.value++;
   }
 
   @override
@@ -140,6 +165,12 @@ class _ResultView extends StatelessWidget {
             Text('損益計算書', style: theme.textTheme.titleMedium),
             const SizedBox(height: 8),
             _IncomeStatementTable(ledger: ledger),
+            if (session.wrongTurns.isNotEmpty) ...[
+              const SizedBox(height: 24),
+              Text('間違えたターンを振り返る', style: theme.textTheme.titleMedium),
+              const SizedBox(height: 8),
+              for (final turn in session.wrongTurns) _WrongTurnReview(turn: turn),
+            ],
             const SizedBox(height: 24),
             OutlinedButton(
               onPressed: () => Navigator.of(context).popUntil((r) => r.isFirst),
@@ -147,6 +178,34 @@ class _ResultView extends StatelessWidget {
             ),
           ],
         ),
+      ),
+    );
+  }
+}
+
+/// 間違えたターンの「正解の仕訳＋解説」を振り返り表示する。
+/// [JournalResultBanner] をそのまま使うことで、解説中の用語集連携
+/// （`ExplanationWithTerms`）も自動的に効く。
+class _WrongTurnReview extends StatelessWidget {
+  const _WrongTurnReview({required this.turn});
+
+  final CompanyTurn turn;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(turn.eventText, style: theme.textTheme.bodyMedium),
+          const SizedBox(height: 8),
+          JournalResultBanner(
+            result: judgeJournal(turn.answer, turn.answer.lines),
+            explanation: turn.explanation,
+          ),
+        ],
       ),
     );
   }

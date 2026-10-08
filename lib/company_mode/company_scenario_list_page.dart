@@ -3,14 +3,18 @@ import 'package:flutter/material.dart';
 import 'package:yourwish_kentei/yourwish_kentei.dart';
 
 import '../exam_data/exam_data_cache.dart';
+import 'company_mode_history_store.dart';
 import 'company_scenario_play_page.dart';
 
 /// 「学ぶ」タブから開く会社経営モードのシナリオ選択画面。
 ///
-/// `docs/company_mode_v1_design.md` のPhase 1。初回は業種違いの3シナリオを
+/// `docs/company_mode_v1_design.md` のPhase 1〜2。初回は業種違いの3シナリオを
 /// 全て無料で公開する。
 class CompanyScenarioListPage extends StatefulWidget {
-  const CompanyScenarioListPage({super.key});
+  const CompanyScenarioListPage({super.key, required this.historyStore});
+
+  /// プレイ結果の保存先（「記録」タブの経営履歴に表示する）。
+  final CompanyModeHistoryStore historyStore;
 
   @override
   State<CompanyScenarioListPage> createState() => _CompanyScenarioListPageState();
@@ -58,7 +62,12 @@ class _CompanyScenarioListPageState extends State<CompanyScenarioListPage> {
                   ),
                   trailing: const Icon(Icons.chevron_right),
                   onTap: () => Navigator.of(context).push(
-                    MaterialPageRoute(builder: (_) => CompanyScenarioPlayPage(scenario: scenario)),
+                    MaterialPageRoute(
+                      builder: (_) => CompanyScenarioPlayPage(
+                        scenario: scenario,
+                        historyStore: widget.historyStore,
+                      ),
+                    ),
                   ),
                 ),
               );

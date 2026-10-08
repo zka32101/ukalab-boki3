@@ -2,6 +2,7 @@ import 'package:app_common_kit/app_common_kit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import 'company_mode/company_mode_history_store.dart';
 import 'company_mode/company_scenario_list_page.dart';
 import 'mock_exam/mock_exam_page.dart';
 import 'oshi/boki3_oshi_card.dart';
@@ -15,6 +16,9 @@ import 'term/term_list_page.dart';
 
 /// 演習・模擬試験の解答記録の保存先。端末内保存（アプリ全体で共有）。
 final ProgressStore appProgressStore = SharedPreferencesProgressStore();
+
+/// 会社経営モードのプレイ結果の保存先。端末内保存（アプリ全体で共有）。
+final CompanyModeHistoryStore appCompanyModeHistoryStore = SharedPreferencesCompanyModeHistoryStore();
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -43,7 +47,10 @@ class UkalabBoki3App extends StatelessWidget {
             const _HomePage(),
             const _LearnPage(),
             const _MockExamTab(),
-            RecordsPage(progressStore: appProgressStore),
+            RecordsPage(
+              progressStore: appProgressStore,
+              companyModeHistoryStore: appCompanyModeHistoryStore,
+            ),
             SettingsPage(progressStore: appProgressStore),
           ],
         ),
@@ -140,7 +147,9 @@ class _LearnPage extends StatelessWidget {
           width: double.infinity,
           child: OutlinedButton.icon(
             onPressed: () => Navigator.of(context).push(
-              MaterialPageRoute(builder: (_) => const CompanyScenarioListPage()),
+              MaterialPageRoute(
+                builder: (_) => CompanyScenarioListPage(historyStore: appCompanyModeHistoryStore),
+              ),
             ),
             icon: const Icon(Icons.storefront_outlined),
             label: const Align(alignment: Alignment.centerLeft, child: Text('会社を経営する')),

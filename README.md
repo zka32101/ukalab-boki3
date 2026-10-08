@@ -482,5 +482,21 @@ Chromiumをヘッドレスモードで動かし、スクリーンショットで
   `flutter analyze` 0件・`flutter test`（73件）成功、Webビルド＋ヘッドレスブラウザでの表示確認
   （「学ぶ」タブ→「会社を経営する」→シナリオ一覧→導入画面→1ターン目の仕訳入力画面まで、console error 0件）
   も実施済み
-- Phase 2（結果の保存・記録タブへの表示、苦手科目連携との統合）・Phase 3（シナリオ追加・有料化検討）は
-  `docs/company_mode_v1_design.md`のフェーズ分割のとおり未着手
+- Phase 3（シナリオ追加・有料化検討）は`docs/company_mode_v1_design.md`のフェーズ分割のとおり未着手
+
+### 会社経営モード Phase 2（2026-10-08追加・その2）
+
+- `lib/company_mode/company_mode_history_store.dart`（`CompanyModeResult`・`CompanyModeHistoryStore`・
+  `SharedPreferencesCompanyModeHistoryStore`）を追加。`SharedPreferencesProgressStore`と同じパターンで、
+  シナリオ完走時に会社名・仕訳の正答数・当期純利益・プレイ日時を端末内保存する
+- `CompanyModeSession`に`wrongTurns`（不正解だったターンの一覧）を追加。結果画面に「間違えたターンを
+  振り返る」セクションを設け、不正解だったターンの正解仕訳・解説を`JournalResultBanner`でそのまま表示する。
+  解説中の用語集連携（`ExplanationWithTerms`）は既存の仕組みがそのまま効くため、新規実装は不要だった
+  （「経営中の誤答を用語集・復習導線につなげる」という企画の狙いを、新しい連携コードを書かずに達成できた）
+- 「記録」タブ（`RecordsPage`）に「経営履歴」セクションを追加。直近5件のプレイ結果（会社名・仕訳の正答数・
+  当期純利益）をカード表示する。履歴が1件もない間はセクション自体を出さない
+- `test/company_scenario_wrong_turn_review_test.dart`（不正解でも進行し振り返りが出ることの確認）・
+  `test/records_page_company_mode_history_test.dart`（記録タブへの履歴表示の確認）を追加。既存の
+  `company_scenario_play_test.dart`にも履歴保存の確認を追加。`flutter analyze` 0件・`flutter test`
+  （75件）成功、Webビルド＋ヘッドレスブラウザでの表示確認（シナリオのターン画面・履歴なし時の記録タブの
+  表示、console error 0件）も実施済み

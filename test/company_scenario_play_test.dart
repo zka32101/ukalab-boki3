@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:yourwish_kentei/yourwish_kentei.dart';
 
+import 'package:ukalab_boki3/company_mode/company_mode_history_store.dart';
 import 'package:ukalab_boki3/company_mode/company_scenario_play_page.dart';
 import 'package:ukalab_boki3/journal_input/journal_input_controller.dart';
 import 'package:ukalab_boki3/journal_input/journal_input_state.dart';
@@ -44,10 +45,13 @@ const _scenario = CompanyScenario(
 );
 
 void main() {
-  testWidgets('シナリオを最後まで正しく仕訳すると、結果画面に貸借対照表・損益計算書が表示される', (tester) async {
+  testWidgets('シナリオを最後まで正しく仕訳すると、結果画面に貸借対照表・損益計算書が表示され、履歴に記録される', (tester) async {
+    final historyStore = InMemoryCompanyModeHistoryStore();
     await tester.pumpWidget(
-      const ProviderScope(
-        child: MaterialApp(home: CompanyScenarioPlayPage(scenario: _scenario)),
+      ProviderScope(
+        child: MaterialApp(
+          home: CompanyScenarioPlayPage(scenario: _scenario, historyStore: historyStore),
+        ),
       ),
     );
     await tester.pumpAndSettle();
@@ -87,6 +91,19 @@ void main() {
     expect(find.text('損益計算書'), findsOneWidget);
     expect(find.textContaining('仕訳の正答: 2 / 2ターン'), findsOneWidget);
     expect(find.textContaining('当期純利益'), findsOneWidget);
+    // 全問正解のため「間違えたターンを振り返る」は出ない。
+    expect(find.text('間違えたターンを振り返る'), findsNothing);
+
+    // プレイ結果が履歴ストアに保存される。
+    await tester.runAsync(() async {
+      await Future<void>.delayed(const Duration(milliseconds: 50));
+    });
+    final results = await historyStore.loadResults();
+    expect(results, hasLength(1));
+    expect(results.single.companyName, 'テスト商店');
+    expect(results.single.correctCount, 2);
+    expect(results.single.turnCount, 2);
+    expect(results.single.netIncome, 40000);
   });
 }
 
