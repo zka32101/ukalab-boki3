@@ -1,14 +1,14 @@
 import 'dart:convert';
 
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:yourwish_kentei/yourwish_kentei.dart';
+import 'package:ukalab_core/ukalab_core.dart';
 
-export 'package:yourwish_kentei/yourwish_kentei.dart'
+export 'package:ukalab_core/ukalab_core.dart'
     show ProgressRecord, ProgressStore, InMemoryProgressStore;
 
 /// 端末内（`SharedPreferences`）への保存。記録が増え続けないよう、
 /// 直近 [maxRecords] 件だけを残す。[ProgressRecord]・[ProgressStore] の
-/// 定義自体は `yourwish_kentei`（純Dart）にあり、永続化の具体実装だけを
+/// 定義自体は `ukalab_core`（純Dart）にあり、永続化の具体実装だけを
 /// ここに持つ（`shared_preferences` はFlutterプラグインのため）。
 class SharedPreferencesProgressStore implements ProgressStore {
   SharedPreferencesProgressStore({this.maxRecords = 2000});

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:yourwish_kentei/yourwish_kentei.dart';
+import 'package:ukalab_core/ukalab_core.dart';
 
 import 'package:ukalab_boki3/voucher_input/voucher_input_controller.dart';
 import 'package:ukalab_boki3/voucher_input/voucher_kind.dart';

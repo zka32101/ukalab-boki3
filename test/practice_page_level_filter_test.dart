@@ -1,7 +1,7 @@
 import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:yourwish_kentei/yourwish_kentei.dart';
+import 'package:ukalab_core/ukalab_core.dart';
 
 /// `PracticePage._loadSession` が使うのと同じフィルタ式
 /// （`q.levelId == null || q.levelId == levelId`）で、旧区分表専用の問題

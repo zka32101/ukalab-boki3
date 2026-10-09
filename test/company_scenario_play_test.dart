@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:yourwish_kentei/yourwish_kentei.dart';
+import 'package:ukalab_core/ukalab_core.dart';
 
 import 'package:ukalab_boki3/company_mode/company_mode_history_store.dart';
 import 'package:ukalab_boki3/company_mode/company_scenario_play_page.dart';

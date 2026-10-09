@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:yourwish_kentei/yourwish_kentei.dart';
+import 'package:ukalab_core/ukalab_core.dart';
 
 import '../exam_data/exam_data_cache.dart';
 import 'term_card_opener.dart';

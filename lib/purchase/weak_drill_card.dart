@@ -1,7 +1,7 @@
 import 'package:app_common_kit/app_common_kit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:yourwish_kentei/yourwish_kentei.dart';
+import 'package:ukalab_core/ukalab_core.dart';
 
 import '../exam_data/current_level.dart';
 import '../exam_data/exam_data_cache.dart';

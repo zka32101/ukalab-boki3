@@ -1,7 +1,7 @@
 import 'package:app_common_kit/app_common_kit.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:ukalab_boki3/oshi/boki3_oshi_card.dart';
-import 'package:yourwish_kentei/yourwish_kentei.dart';
+import 'package:ukalab_core/ukalab_core.dart';
 
 ProgressRecord _r(String qid, bool ok) =>
     ProgressRecord(qid: qid, subjectId: 'q1_shiwake', correct: ok, at: DateTime(2026, 10, 7));

@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:yourwish_kentei/yourwish_kentei.dart';
+import 'package:ukalab_core/ukalab_core.dart';
 
 /// 問題データ（JSONL）の機械検証。出典必須・貸借一致・ExamConfigとの整合性を確認する。
 void main() {

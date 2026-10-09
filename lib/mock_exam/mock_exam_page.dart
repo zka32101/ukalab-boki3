@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:app_common_kit/app_common_kit.dart';
 import 'package:flutter/material.dart';
-import 'package:yourwish_kentei/yourwish_kentei.dart';
+import 'package:ukalab_core/ukalab_core.dart';
 
 import '../evidence_input/evidence_question_view.dart';
 import '../exam_data/current_level.dart';
@@ -187,7 +187,7 @@ class _MockExamBodyState extends State<_MockExamBody> {
     });
   }
 
-  /// `yourwish_kentei` の `scoreMockExam` が内部で使う正誤判定と同じロジック
+  /// `ukalab_core` の `scoreMockExam` が内部で使う正誤判定と同じロジック
   /// （非公開のため進捗記録用にここで再実装）。
   bool _isCorrect(Question q, Object? answer) {
     switch (q.type) {

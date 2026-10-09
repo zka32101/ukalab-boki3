@@ -1,4 +1,4 @@
-import 'package:yourwish_kentei/yourwish_kentei.dart';
+import 'package:ukalab_core/ukalab_core.dart';
 
 import 'ledger_input_state.dart';
 
