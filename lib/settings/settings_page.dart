@@ -1,6 +1,7 @@
 import 'package:app_common_kit/app_common_kit.dart';
 import 'package:flutter/material.dart';
 
+import '../hands_free/hands_free_section.dart';
 import '../progress/progress_revision.dart';
 import '../progress/progress_store.dart';
 
@@ -80,6 +81,8 @@ class SettingsPage extends StatelessWidget {
             onSelectionChanged: (selected) => setThemeMode(selected.first),
           ),
         ),
+        const SizedBox(height: 32),
+        const HandsFreeSection(),
         if (purchaseSection != null) ...[
           const SizedBox(height: 32),
           purchaseSection!,
