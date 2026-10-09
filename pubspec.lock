@@ -524,7 +524,7 @@ packages:
       path: "."
       ref: "v0.14.0"
       resolved-ref: "9bb16c089d72ef6330f2d9ccc99b36bc68825dc4"
-      url: "https://github.com/zka32101/yourwish_kentei.git"
+      url: "https://github.com/zka32101/ukalab_core.git"
     source: git
     version: "0.14.0"
 sdks:
