@@ -1,9 +1,13 @@
 /// 簿記3級の勘定科目マスタ。
 ///
 /// `docs/accounts_v1_official.md`（確定版 v1）をコード化したもの。商工会議所の公式
-/// 出題区分表（2026年7月31日最終改定、2027年4月1日施行）に基づく。2026年度中
-/// （〜2027年3月実施分）は旧区分表が適用されるため、この一覧は `level3_from_2027_04`
-/// 向け。旧区分表（手形等を含む）はまだ一次資料未入手。
+/// 出題区分表（2026年7月31日最終改定、2027年4月1日施行）に基づく。[boki3Accounts] は
+/// `level3_from_2027_04`（2027年4月以降実施分）向け。
+///
+/// 2026年度中（〜2027年3月実施分、`level3_until_2027_03`）は旧区分表（2022年4月1日施行）が
+/// 適用され、[boki3AccountsLegacy] を使う。旧区分表との差分は [boki3LegacyOnlyAccounts]
+/// （受取手形・支払手形・現金過不足・損益）のみで、それ以外の科目は共通（出典:
+/// `docs/accounts_v1_official.md`「旧区分表（2022年度版）向け勘定科目一覧」）。
 library;
 
 /// 勘定科目の5要素グループ。
@@ -174,8 +178,27 @@ const List<AccountDef> boki3Accounts = [
   AccountDef(code: 'miscellaneous_loss', name: '雑損', group: AccountGroup.expense),
 ];
 
+/// 旧区分表（2022年度版）でのみ使う追加科目（新区分表の [boki3Accounts] には含まれない）。
+///
+/// - `notes_receivable`・`notes_payable`: 受取手形・支払手形。3級の出題範囲は振出・受入・支払
+///   のみで、裏書・割引は2級以上の範囲（2026-10-09、ユーザー確認済み）。紙媒体の手形が廃止される
+///   2027年4月以降は出題されなくなるため [boki3Accounts] からは除外している。
+/// - `cash_over_short`・`income_summary`: 現金過不足・損益。`docs/accounts_v1_official.md` の
+///   一次資料（商業簿記標準・許容勘定科目表）の3級欄に明記されている。
+const List<AccountDef> boki3LegacyOnlyAccounts = [
+  AccountDef(code: 'notes_receivable', name: '受取手形', group: AccountGroup.asset),
+  AccountDef(code: 'notes_payable', name: '支払手形', group: AccountGroup.liability),
+  AccountDef(code: 'cash_over_short', name: '現金過不足', group: AccountGroup.asset),
+  // 決算振替（収益・費用を集約する仮勘定）。5要素のどれにも厳密には当てはまらないが、
+  // 最終的に繰越利益剰余金（純資産）に振り替わる勘定のため純資産グループに置く。
+  AccountDef(code: 'income_summary', name: '損益', group: AccountGroup.equity),
+];
+
+/// 簿記3級の勘定科目一覧（旧区分表、2022年4月1日施行、`level3_until_2027_03` 向け）。
+const List<AccountDef> boki3AccountsLegacy = [...boki3Accounts, ...boki3LegacyOnlyAccounts];
+
 final Map<String, AccountDef> _boki3AccountsByCode = {
-  for (final a in boki3Accounts) a.code: a,
+  for (final a in [...boki3Accounts, ...boki3LegacyOnlyAccounts]) a.code: a,
 };
 
 /// コードから科目名を引く（未知のコードは `code` をそのまま返す）。

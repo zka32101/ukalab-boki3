@@ -201,6 +201,11 @@ PDFのテーブルレイアウト抽出が一部崩れている（3級列・2級
    未入手。`2022_kamoku.pdf`（勘定科目表）だけでは、各科目がどの大項目・中項目に属するかまでは
    カバーしきれない。ただし**手形の裏書・割引は2026-10-09にユーザーが確認済みで、3級の範囲外
    （2級以上）**。3級では受取手形・支払手形の振出・受入・支払のみを出題する
-2. `account_catalog.dart`に`level3_until_2027_03`向けの科目一覧（`boki3AccountsLegacy`等）を追加し、
-   `assets/exam/boki3.exam.json`の`level3_until_2027_03`向け問題データを拡充する作業は未着手
+2. ~~`account_catalog.dart`に`level3_until_2027_03`向けの科目一覧を追加~~ → **対応済み（2026-10-09）**。
+   `boki3AccountsLegacy`（新区分表`boki3Accounts`＋`boki3LegacyOnlyAccounts`〈受取手形・支払手形・
+   現金過不足・損益〉）を追加し、`accountNameOf`がどちらの時代の科目コードも解決できるようにした。
+   `test/account_catalog_legacy_test.dart`で検証済み。**残課題**: `assets/exam/boki3.exam.json`の
+   `level3_until_2027_03`向け問題データ（手形の振出・受入・支払を扱う仕訳問題）はまだ1問もない。
+   科目一覧があるだけで、実際にその科目を使う問題が無いため、旧区分表の受験者向けの演習としては
+   不十分な状態
 3. 当座借越・未払配当金・福利厚生費の3級該当性（PDFのテーブル抽出が一部崩れており確信が持てない）
