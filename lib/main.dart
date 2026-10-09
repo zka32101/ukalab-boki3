@@ -8,6 +8,7 @@ import 'mock_exam/mock_exam_page.dart';
 import 'oshi/boki3_oshi_card.dart';
 import 'practice/practice_page.dart';
 import 'progress/progress_store.dart';
+import 'purchase/purchase_section.dart';
 import 'progress/progress_summary_card.dart';
 import 'records/records_page.dart';
 import 'settings/settings_page.dart';
@@ -24,7 +25,36 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await migrateLegacyProgressKeys();
   await loadSavedThemeMode();
-  runApp(const ProviderScope(child: UkalabBoki3App()));
+
+  // 課金（RevenueCat）。実際のAPIキー取得後にRevenueCatEntitlementServiceへ差し替える。
+  // 価格は競合調査を踏まえた暫定値で、運営者確認が必要（決定14）。
+  final entitlementService = FakeEntitlementService(
+    availableOffers: const [
+      EntitlementOffer(
+        id: 'noads',
+        productId: 'boki3_noads',
+        title: '広告非表示',
+        priceString: '¥480',
+      ),
+      EntitlementOffer(
+        id: 'premium',
+        productId: 'boki3_premium',
+        title: 'プレミアム（広告非表示＋追加機能）',
+        priceString: '¥1,500',
+      ),
+    ],
+    grantOnPurchase: const {
+      'boki3_noads': EntitlementState(hasNoAds: true),
+      'boki3_premium': EntitlementState(hasPremium: true),
+    },
+  );
+
+  runApp(
+    ProviderScope(
+      overrides: [entitlementServiceProvider.overrideWithValue(entitlementService)],
+      child: const UkalabBoki3App(),
+    ),
+  );
 }
 
 class UkalabBoki3App extends StatelessWidget {
@@ -51,7 +81,7 @@ class UkalabBoki3App extends StatelessWidget {
               progressStore: appProgressStore,
               companyModeHistoryStore: appCompanyModeHistoryStore,
             ),
-            SettingsPage(progressStore: appProgressStore),
+            SettingsPage(progressStore: appProgressStore, purchaseSection: const PurchaseSection()),
           ],
         ),
       ),
