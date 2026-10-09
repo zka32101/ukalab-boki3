@@ -9,7 +9,6 @@ import 'mock_exam/mock_exam_page.dart';
 import 'oshi/boki3_oshi_card.dart';
 import 'practice/practice_page.dart';
 import 'progress/progress_store.dart';
-import 'purchase/purchase_section.dart';
 import 'purchase/weak_drill_card.dart';
 import 'progress/progress_summary_card.dart';
 import 'records/records_page.dart';
@@ -84,7 +83,9 @@ class UkalabBoki3App extends StatelessWidget {
               progressStore: appProgressStore,
               companyModeHistoryStore: appCompanyModeHistoryStore,
             ),
-            SettingsPage(progressStore: appProgressStore, purchaseSection: const PurchaseSection()),
+            SettingsPage(progressStore: appProgressStore, purchaseSection: Builder(
+                builder: (c) => PurchaseSection(titleStyle: Theme.of(c).textTheme.titleLarge),
+              )),
           ],
         ),
       ),
