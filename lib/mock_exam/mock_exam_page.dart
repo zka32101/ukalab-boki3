@@ -187,7 +187,7 @@ class _MockExamBodyState extends State<_MockExamBody> {
     });
   }
 
-  /// `yourwish_kentei` の `scoreMockExam` が内部で使う正誤判定と同じロジック
+  /// `ukalab_core` の `scoreMockExam` が内部で使う正誤判定と同じロジック
   /// （非公開のため進捗記録用にここで再実装）。
   bool _isCorrect(Question q, Object? answer) {
     switch (q.type) {

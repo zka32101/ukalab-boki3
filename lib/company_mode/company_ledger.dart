@@ -6,7 +6,7 @@ import '../journal_input/account_catalog.dart';
 ///
 /// 財務諸表の集計には勘定科目グループ（資産・負債・純資産・収益・費用）の
 /// 判定が要るが、科目マスタ（[boki3Accounts]）はアプリ固有のため、
-/// `yourwish_kentei` 側には置かず、このファイル（ukalab-boki3側）に持つ。
+/// `ukalab_core` 側には置かず、このファイル（ukalab-boki3側）に持つ。
 class CompanyLedger {
   const CompanyLedger({required this.balances});
 
