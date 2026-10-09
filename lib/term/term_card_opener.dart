@@ -1,6 +1,6 @@
 import 'package:app_common_kit/app_common_kit.dart';
 import 'package:flutter/material.dart';
-import 'package:yourwish_kentei/yourwish_kentei.dart';
+import 'package:ukalab_core/ukalab_core.dart';
 
 /// [term] を [showTermCard] でボトムシート表示する。関連用語をタップすると、
 /// 前のカードを閉じて該当の用語カードを開き直す（再帰的に辿れる）。

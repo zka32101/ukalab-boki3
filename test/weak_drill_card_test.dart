@@ -4,7 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:ukalab_boki3/practice/practice_page.dart';
 import 'package:ukalab_boki3/purchase/weak_drill_card.dart';
-import 'package:yourwish_kentei/yourwish_kentei.dart';
+import 'package:ukalab_core/ukalab_core.dart';
 
 final _now = DateTime(2026, 11, 20, 12);
 

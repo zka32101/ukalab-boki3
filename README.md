@@ -266,7 +266,7 @@ Chromiumをヘッドレスモードで動かし、スクリーンショットで
   - ukalab-boki3側は、重複していた`lib/settings/theme_mode_store.dart`・`lib/progress/streak_store.dart`・
     `lib/progress/review_priority.dart`を削除し、`lib/progress/progress_store.dart`は
     `SharedPreferencesProgressStore`（具体実装）だけを残して`ProgressRecord`/`ProgressStore`の定義は
-    `yourwish_kentei`からexportし直す形にした（`export 'package:yourwish_kentei/yourwish_kentei.dart'
+    `yourwish_kentei`からexportし直す形にした（`export 'package:ukalab_core/ukalab_core.dart'
     show ...`）。これにより、直接`yourwish_kentei`をimportしている他ファイルとの間でambiguous import
     にならない。単体テスト（`streak_store_test.dart`・`review_priority_test.dart`・`theme_mode_test.dart`
     の一部）は移植先の各パッケージ側で重複してテスト済みのため削除し、ukalab-boki3固有の統合テスト

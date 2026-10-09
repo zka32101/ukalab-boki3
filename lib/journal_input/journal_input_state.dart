@@ -1,4 +1,4 @@
-import 'package:yourwish_kentei/yourwish_kentei.dart';
+import 'package:ukalab_core/ukalab_core.dart';
 
 /// 仕訳テーブルの1行（入力中。借方・貸方とも科目/金額は未入力ならnull）。
 class JournalLineInputRow {

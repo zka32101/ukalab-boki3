@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:yourwish_kentei/yourwish_kentei.dart';
+import 'package:ukalab_core/ukalab_core.dart';
 
 import '../journal_input/journal_result_banner.dart';
 import '../ledger_input/ledger_result_banner.dart';

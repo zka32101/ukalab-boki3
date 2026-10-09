@@ -1,9 +1,9 @@
 import 'dart:convert';
 
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:yourwish_kentei/yourwish_kentei.dart';
+import 'package:ukalab_core/ukalab_core.dart';
 
-export 'package:yourwish_kentei/yourwish_kentei.dart'
+export 'package:ukalab_core/ukalab_core.dart'
     show ProgressRecord, ProgressStore, InMemoryProgressStore;
 
 /// 端末内（`SharedPreferences`）への保存。記録が増え続けないよう、

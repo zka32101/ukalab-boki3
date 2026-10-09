@@ -1,6 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:ukalab_boki3/company_mode/company_ledger.dart';
-import 'package:yourwish_kentei/yourwish_kentei.dart';
+import 'package:ukalab_core/ukalab_core.dart';
 
 void main() {
   test('元入れ→仕入（掛け）→売上（現金）を積み上げると、各科目の残高が正しく計算される', () {
