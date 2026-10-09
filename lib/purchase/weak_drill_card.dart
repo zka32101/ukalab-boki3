@@ -6,7 +6,6 @@ import 'package:yourwish_kentei/yourwish_kentei.dart';
 import '../exam_data/current_level.dart';
 import '../exam_data/exam_data_cache.dart';
 import '../practice/practice_page.dart';
-import '../progress/progress_store.dart';
 
 /// 「学ぶ」タブに出す、弱点ドリルの入口（premium の機能）。
 ///
