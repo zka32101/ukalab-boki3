@@ -6,9 +6,12 @@ import '../progress/progress_store.dart';
 
 /// 「設定」タブ。アプリの説明と、解答記録をリセットする機能を提供する。
 class SettingsPage extends StatelessWidget {
-  const SettingsPage({super.key, required this.progressStore});
+  const SettingsPage({super.key, required this.progressStore, this.purchaseSection});
 
   final ProgressStore progressStore;
+
+  /// 購入の欄（Riverpod の ProviderScope と権利サービスが必要なため、アプリ側から差し込む）。
+  final Widget? purchaseSection;
 
   Future<void> _confirmAndReset(BuildContext context) async {
     final confirmed = await showDialog<bool>(
@@ -77,6 +80,10 @@ class SettingsPage extends StatelessWidget {
             onSelectionChanged: (selected) => setThemeMode(selected.first),
           ),
         ),
+        if (purchaseSection != null) ...[
+          const SizedBox(height: 32),
+          purchaseSection!,
+        ],
         const SizedBox(height: 32),
         Text('このアプリについて', style: theme.textTheme.titleLarge),
         const SizedBox(height: 12),
