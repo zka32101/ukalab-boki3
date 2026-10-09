@@ -14,7 +14,7 @@ import '../progress/progress_revision.dart';
 import '../voucher_input/voucher_kind.dart';
 import '../voucher_input/voucher_question_view.dart';
 import '../worksheet_input/worksheet_question_view.dart';
-import 'choice_question_view.dart';
+import '../hands_free/hands_free_choice_question.dart';
 
 /// `assets/exam/boki3.questions.jsonl` の問題（type: journal・choice・worksheet）を
 /// [PracticeSession] で順に出題する画面。問題データのロード・パース・品質ゲート
@@ -228,7 +228,7 @@ class _SessionBodyState extends State<_SessionBody> {
           accountPool: current.levelId == 'level3_until_2027_03' ? boki3AccountsLegacy : boki3Accounts,
         );
       case QuestionType.choice:
-        return ChoiceQuestionView(
+        return HandsFreeChoiceQuestion(
           key: ValueKey(current.qid),
           prompt: current.prompt,
           choices: current.choices,
