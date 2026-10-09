@@ -7,6 +7,7 @@ import 'package:yourwish_kentei/yourwish_kentei.dart';
 import '../evidence_input/evidence_question_view.dart';
 import '../exam_data/current_level.dart';
 import '../exam_data/exam_data_cache.dart';
+import '../journal_input/account_catalog.dart';
 import '../journal_input/journal_question_view.dart';
 import '../ledger_input/ledger_question_view.dart';
 import '../practice/choice_question_view.dart';
@@ -388,6 +389,7 @@ class _MockExamRunningView extends StatelessWidget {
           revealResult: false,
           onAnswered: (_, lines) => onJournalAnswered(question.qid, lines),
           onNext: onNext,
+          accountPool: question.levelId == 'level3_until_2027_03' ? boki3AccountsLegacy : boki3Accounts,
         );
       case QuestionType.choice:
         return ChoiceQuestionView(

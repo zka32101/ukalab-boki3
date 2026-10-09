@@ -386,6 +386,28 @@ Chromiumをヘッドレスモードで動かし、スクリーンショットで
   受入・支払を扱う仕訳問題）はまだ1問もない。科目一覧の追加だけでは演習素材として機能しないため、
   問題データの拡充が次のステップ
 
+## 旧区分表向けの手形問題を追加（2026-10-09追加・その2）
+
+- `assets/exam/boki3.questions.jsonl`に手形の仕訳問題6問（`boki3-j-0107`〜`0112`、
+  `levelId: "level3_until_2027_03"`）を追加。仕入代金としての振出・売上代金としての受入・
+  手形代金の支払/取立・買掛金の支払いに代えた振出・売掛金の回収に代えた受入の6パターン。
+  3級の出題範囲（振出・受入・支払のみ、裏書・割引は2級以上）に沿い、全て貸借一致を確認済み
+- 実装してみて、**科目一覧を追加しただけでは問題が解けない**ことが分かった。`JournalQuestionView`の
+  科目ピッカーはデフォルトで新区分表の`boki3Accounts`しか見せないため、受取手形・支払手形が
+  選択肢に出ない状態だった。`JournalInputTable`・`JournalQuestionView`に`accountPool`引数を追加し、
+  `PracticePage`・`MockExamPage`で問題の`levelId`が`level3_until_2027_03`なら`boki3AccountsLegacy`
+  （手形を含む）を渡すようにして解決した
+- `PracticePage`に`levelId`フィルタを追加（`q.levelId == null || q.levelId == currentLevelId()`）。
+  `restrictToQids`指定時（復習セッション）は、過去の出題当時の問題をそのまま見られるようこの
+  フィルタを適用しない。`now`（テスト用の時刻注入）パラメータも追加した
+- `test/practice_page_level_filter_test.dart`（データレベルのフィルタ検証）・
+  `test/practice_page_legacy_level_ui_test.dart`・`practice_page_legacy_level_ui_before_test.dart`
+  （2027年4月の前後で出題数が88→82問に変わることのUI確認）・
+  `test/journal_question_view_legacy_pool_test.dart`・`journal_question_view_default_pool_test.dart`
+  （科目ピッカーに`accountPool`が正しく伝わることの確認）を追加。`flutter analyze` 0件・
+  `flutter test`（89件）成功、Webビルド＋ヘッドレスブラウザでの表示確認（手形問題の表示、科目ピッカーで
+  「支払手形」を検索・選択できることを確認、console error 0件）も実施済み
+
 ## 未決・要確認（企画設計書 第6章より）
 
 1. ~~ネット試験の解答入力方式とアプリの入力UIの合わせ方~~ → **調査済み（2026-10-08、Web検索）**。
@@ -406,9 +428,9 @@ Chromiumをヘッドレスモードで動かし、スクリーンショットで
    2026年度中（〜2027年3月実施分）向けの旧区分表についても、**勘定科目一覧の一次資料（2026-10-08、
    Google Drive）・コードへの反映（2026-10-09、`account_catalog.dart`の`boki3AccountsLegacy`）まで
    対応済み**。手形の裏書・割引は3級の範囲外（2級以上、2026-10-09ユーザー確認）であることも明記した。
-   **残課題**: 出題区分表そのもの（階層構造を持つ原本）はまだ未入手。また
-   `assets/exam/boki3.exam.json`の`level3_until_2027_03`向け問題データ（手形を扱う仕訳問題）は
-   まだ1問もなく、科目一覧があるだけで演習素材としては不十分
+   **問題データの作成・出題への反映も対応済み**（2026-10-09）: 手形の仕訳問題6問を追加し、
+   `levelId`に応じた出題フィルタ・科目ピッカーの切り替えまで実装した（詳細は上記「旧区分表向けの
+   手形問題を追加」を参照）。**残課題**: 出題区分表そのもの（階層構造を持つ原本）はまだ未入手
 3. 「日商簿記」の表記の可否（商標・誤認）、J-PlatPat・専門家確認 → **部分的に調査（2026-10-08、
    Web検索）、最終判断は未了**。「日商簿記」は正式名称「日本商工会議所及び各地商工会議所主催簿記検定
    試験」の略称・通称として広く使われている。App Store等で「日商簿記」を商品名・説明文に含む民間の

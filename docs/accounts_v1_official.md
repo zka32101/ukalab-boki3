@@ -204,8 +204,11 @@ PDFのテーブルレイアウト抽出が一部崩れている（3級列・2級
 2. ~~`account_catalog.dart`に`level3_until_2027_03`向けの科目一覧を追加~~ → **対応済み（2026-10-09）**。
    `boki3AccountsLegacy`（新区分表`boki3Accounts`＋`boki3LegacyOnlyAccounts`〈受取手形・支払手形・
    現金過不足・損益〉）を追加し、`accountNameOf`がどちらの時代の科目コードも解決できるようにした。
-   `test/account_catalog_legacy_test.dart`で検証済み。**残課題**: `assets/exam/boki3.exam.json`の
-   `level3_until_2027_03`向け問題データ（手形の振出・受入・支払を扱う仕訳問題）はまだ1問もない。
-   科目一覧があるだけで、実際にその科目を使う問題が無いため、旧区分表の受験者向けの演習としては
-   不十分な状態
+   `test/account_catalog_legacy_test.dart`で検証済み。
+   ~~`level3_until_2027_03`向け問題データの作成~~ → **対応済み（2026-10-09）**。手形の振出・受入・支払
+   を扱う仕訳問題6問（`boki3-j-0107`〜`0112`）を追加し、`levelId: "level3_until_2027_03"`を付与した。
+   `PracticePage`・`MockExamPage`に`levelId`フィルタ（現在の試験区分に合わない問題を除外）と、
+   問題のlevelIdに応じた`accountPool`切り替え（手形問題では`JournalQuestionView`の科目ピッカーに
+   `boki3AccountsLegacy`を渡し、受取手形・支払手形を選べるようにする）を実装した。これがないと、
+   科目一覧に追加しただけでは問題の科目ピッカーに手形が出ず正解できない、という見落としがあった
 3. 当座借越・未払配当金・福利厚生費の3級該当性（PDFのテーブル抽出が一部崩れており確信が持てない）

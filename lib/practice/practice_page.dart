@@ -5,7 +5,9 @@ import 'package:flutter/material.dart';
 import 'package:yourwish_kentei/yourwish_kentei.dart';
 
 import '../evidence_input/evidence_question_view.dart';
+import '../exam_data/current_level.dart';
 import '../exam_data/exam_data_cache.dart';
+import '../journal_input/account_catalog.dart';
 import '../journal_input/journal_question_view.dart';
 import '../ledger_input/ledger_question_view.dart';
 import '../progress/progress_revision.dart';
@@ -25,6 +27,7 @@ class PracticePage extends StatefulWidget {
     this.restrictToQids,
     this.subjectId,
     this.title,
+    this.now,
   });
 
   /// 解答記録の保存先（ホーム画面の科目別正答率に反映される）。
@@ -32,6 +35,8 @@ class PracticePage extends StatefulWidget {
 
   /// 非null なら、全問題の中からこの qid 集合に含まれる問題だけを出題する
   /// （「間違えた問題を復習する」から開くとき用）。[subjectId] と同時には使わない。
+  /// 指定時は [now] による出題範囲（levelId）の絞り込みを行わない
+  /// （復習は過去の出題当時の問題をそのまま見られるようにするため）。
   final Set<String>? restrictToQids;
 
   /// 非null なら、この科目（`ExamConfig.subjects` の `subjectId`）の問題だけを
@@ -40,6 +45,10 @@ class PracticePage extends StatefulWidget {
 
   /// AppBarのタイトル。省略時は [restrictToQids] の有無から自動で決める。
   final String? title;
+
+  /// テスト用の時刻注入（省略時は現在時刻）。`currentLevelId` に渡し、
+  /// 出題範囲を現在の試験区分（`levelId`）に絞り込む。
+  final DateTime? now;
 
   @override
   State<PracticePage> createState() => _PracticePageState();
@@ -61,11 +70,19 @@ class _PracticePageState extends State<PracticePage> {
     final questions = await loadQuestions();
     final restrict = widget.restrictToQids;
     final subjectId = widget.subjectId;
+
+    // levelId が null の問題は全levelで共通利用。levelId が指定されている問題
+    // （例: 旧区分表〈level3_until_2027_03〉専用の手形問題）は、現在の試験区分と
+    // 一致するものだけを出す。復習（restrictToQids指定）は、過去の出題当時の
+    // 問題をそのまま見られるよう、この絞り込みを行わない。
+    final levelId = currentLevelId(now: widget.now);
+    final byLevel = questions.where((q) => q.levelId == null || q.levelId == levelId);
+
     final pool = restrict != null
         ? questions.where((q) => restrict.contains(q.qid)).toList()
         : subjectId != null
-        ? questions.where((q) => q.subjectId == subjectId).toList()
-        : questions;
+        ? byLevel.where((q) => q.subjectId == subjectId).toList()
+        : byLevel.toList();
 
     // 直近の解答で不正解のまま放置されている問題（間隔反復の「期限切れ」相当）を
     // 先頭に優先出題する。`PracticeSession` 側は、対象の qid が pool になければ
@@ -208,6 +225,7 @@ class _SessionBodyState extends State<_SessionBody> {
           explanation: current.explanation,
           onAnswered: onJournalAnswered,
           onNext: () => setState(() {}),
+          accountPool: current.levelId == 'level3_until_2027_03' ? boki3AccountsLegacy : boki3Accounts,
         );
       case QuestionType.choice:
         return ChoiceQuestionView(

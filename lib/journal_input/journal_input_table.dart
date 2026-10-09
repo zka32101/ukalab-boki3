@@ -18,12 +18,17 @@ class JournalInputTable extends ConsumerWidget {
     this.cellDiffs,
     this.readOnly = false,
     this.onAccountSelected,
+    this.accountPool = boki3Accounts,
   });
 
   final List<String> recentAccountCodes;
   final Map<JournalCellRef, JournalLineDiffKind>? cellDiffs;
   final bool readOnly;
   final ValueChanged<String>? onAccountSelected;
+
+  /// 科目ピッカーに表示する勘定科目一覧。旧区分表（`level3_until_2027_03`）向けの
+  /// 問題では [boki3AccountsLegacy] を渡す（手形科目を選べるようにするため）。
+  final List<AccountDef> accountPool;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -61,7 +66,7 @@ class JournalInputTable extends ConsumerWidget {
     final controller = ref.read(journalInputProvider.notifier);
     controller.selectCell(cell);
     if (cell.field == JournalCellField.account) {
-      final code = await showAccountPicker(context, recent: recentAccountCodes);
+      final code = await showAccountPicker(context, recent: recentAccountCodes, pool: accountPool);
       if (code != null) {
         controller.setAccount(code);
         onAccountSelected?.call(code);

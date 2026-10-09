@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:yourwish_kentei/yourwish_kentei.dart';
 
+import 'account_catalog.dart';
 import 'balance_indicator.dart';
 import 'journal_diff_mapper.dart';
 import 'journal_input_controller.dart';
@@ -21,11 +22,16 @@ class JournalQuestionView extends ConsumerStatefulWidget {
     this.onAnswered,
     this.onNext,
     this.revealResult = true,
+    this.accountPool = boki3Accounts,
   });
 
   final String prompt;
   final JournalAnswer correctAnswer;
   final String? explanation;
+
+  /// 科目ピッカーに表示する勘定科目一覧。旧区分表（`level3_until_2027_03`）向けの
+  /// 問題では [boki3AccountsLegacy] を渡す（手形科目を選べるようにするため）。
+  final List<AccountDef> accountPool;
 
   /// 答え合わせボタンが押されたときに、判定結果とユーザー入力を通知する。
   final void Function(JournalJudgeResult result, List<JournalLine> userInput)? onAnswered;
@@ -126,6 +132,7 @@ class _JournalQuestionViewState extends ConsumerState<JournalQuestionView> {
               cellDiffs: cellDiffs,
               readOnly: _result != null,
               onAccountSelected: _onAccountSelected,
+              accountPool: widget.accountPool,
             ),
           ),
         ),
