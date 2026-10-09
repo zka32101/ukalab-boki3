@@ -1,3 +1,4 @@
+import 'package:app_common_kit/app_common_kit.dart' show FakeEntitlementService, entitlementServiceProvider;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -17,7 +18,10 @@ void main() {
     // 推しは動き続けるので、「動きを減らす」設定にして pumpAndSettle が終わるようにする。
     tester.platformDispatcher.accessibilityFeaturesTestValue = const FakeAccessibilityFeatures(disableAnimations: true);
     addTearDown(tester.platformDispatcher.clearAccessibilityFeaturesTestValue);
-    await tester.pumpWidget(const ProviderScope(child: UkalabBoki3App()));
+    await tester.pumpWidget(ProviderScope(
+        overrides: [entitlementServiceProvider.overrideWithValue(FakeEntitlementService())],
+        child: const UkalabBoki3App(),
+      ));
     await tester.pumpAndSettle();
 
     await tester.tap(find.text('学ぶ'));
