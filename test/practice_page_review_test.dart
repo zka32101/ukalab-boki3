@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import 'package:ukalab_boki3/hands_free/hands_free_choice_question.dart';
 import 'package:ukalab_boki3/practice/practice_page.dart';
 import 'package:ukalab_boki3/progress/progress_store.dart';
+import 'test_support.dart';
 
 /// 「間違えた問題を復習する」機能の検証。choice型2問（うち1問をわざと
 /// 不正解にする）を解き、結果画面から復習セッションに入れることを確認する。
@@ -15,10 +18,13 @@ void main() {
   testWidgets('間違えた問題だけを復習セッションで出題できる', (tester) async {
     final progressStore = InMemoryProgressStore();
     await tester.pumpWidget(
-      MaterialApp(
-        home: PracticePage(
-          progressStore: progressStore,
-          restrictToQids: const {'boki3-c-0001', 'boki3-c-0002'},
+      ProviderScope(
+        overrides: studyNotesTestOverrides(),
+        child: MaterialApp(
+          home: PracticePage(
+            progressStore: progressStore,
+            restrictToQids: const {'boki3-c-0001', 'boki3-c-0002'},
+          ),
         ),
       ),
     );
@@ -32,7 +38,10 @@ void main() {
     expect(find.text('答え合わせ'), findsOneWidget);
 
     // 1問目（boki3-c-0001: 答えは「売掛金」=index2）をわざと不正解にする。
-    await tester.tap(find.byType(InkWell).first);
+    // ヘッダーのメモ・ブックマークも InkWell なので、選択肢の部分に絞って探す。
+    Finder choiceTiles() =>
+        find.descendant(of: find.byType(HandsFreeChoiceQuestion), matching: find.byType(InkWell));
+    await tester.tap(choiceTiles().first);
     await tester.pumpAndSettle();
     await tester.tap(find.text('答え合わせ'));
     await tester.pumpAndSettle();
@@ -40,8 +49,7 @@ void main() {
     await tester.pumpAndSettle();
 
     // 2問目（boki3-c-0002: 答えは「買掛金」=index2）は正解を選ぶ。
-    final tiles = find.byType(InkWell);
-    await tester.tap(tiles.at(2));
+    await tester.tap(choiceTiles().at(2));
     await tester.pumpAndSettle();
     await tester.tap(find.text('答え合わせ'));
     await tester.pumpAndSettle();

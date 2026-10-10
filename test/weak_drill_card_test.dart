@@ -5,6 +5,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:ukalab_boki3/practice/practice_page.dart';
 import 'package:ukalab_boki3/purchase/weak_drill_card.dart';
 import 'package:ukalab_core/ukalab_core.dart';
+import 'test_support.dart';
 
 final _now = DateTime(2026, 11, 20, 12);
 
@@ -34,6 +35,7 @@ Future<ProgressStore> _pump(
   await tester.pumpWidget(
     ProviderScope(
       overrides: [
+        ...studyNotesTestOverrides(),
         entitlementServiceProvider.overrideWithValue(
           FakeEntitlementService(initial: EntitlementState(hasPremium: premium)),
         ),

@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:ukalab_boki3/company_mode/company_mode_history_store.dart';
 import 'package:ukalab_boki3/progress/progress_store.dart';
 import 'package:ukalab_boki3/records/records_page.dart';
+import 'test_support.dart';
 
 void main() {
   testWidgets('不正解の記録があると復習待ちの問題として一覧に出て、まとめて復習できる', (tester) async {
@@ -18,10 +20,13 @@ void main() {
     );
 
     await tester.pumpWidget(
-      MaterialApp(
-        home: RecordsPage(
-          progressStore: progressStore,
-          companyModeHistoryStore: InMemoryCompanyModeHistoryStore(),
+      ProviderScope(
+        overrides: studyNotesTestOverrides(),
+        child: MaterialApp(
+          home: RecordsPage(
+            progressStore: progressStore,
+            companyModeHistoryStore: InMemoryCompanyModeHistoryStore(),
+          ),
         ),
       ),
     );
