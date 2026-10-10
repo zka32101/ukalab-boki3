@@ -1,7 +1,6 @@
 import 'package:app_common_kit/app_common_kit.dart';
+import 'package:app_common_kit/hands_free_tts.dart';
 import 'package:flutter/foundation.dart';
-
-import 'flutter_tts_speech_backend.dart';
 
 /// ながら学習モードの設定（アプリ全体で共有）。[appThemeMode] と同じく、画面側は
 /// この値を購読するだけでよい（Riverpod の ProviderScope は要らない）。
