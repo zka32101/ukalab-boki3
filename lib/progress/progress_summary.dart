@@ -1,6 +1,6 @@
 import 'progress_store.dart';
 
-/// 1科目分の正答率（`yourwish_kentei` の `SubjectProgress` と名前が衝突するため
+/// 1科目分の正答率（`ukalab_core` の `SubjectProgress` と名前が衝突するため
 /// `SubjectAccuracy` と命名）。
 class SubjectAccuracy {
   const SubjectAccuracy({required this.subjectId, required this.correct, required this.total});

@@ -26,3 +26,5 @@ firebase_options.dart
 android/keystore/
 *.jks
 *.keystore
+e2e/node_modules/
+e2e/shots/

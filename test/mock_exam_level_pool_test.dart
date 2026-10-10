@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:yourwish_kentei/yourwish_kentei.dart';
+import 'package:ukalab_core/ukalab_core.dart';
 
 /// 新旧どちらの配点levelでも、`subjectQuestionCounts` が要求する数だけ
 /// 科目ごとに問題が揃っているかを確認する（levelIdをnullにして全levelで

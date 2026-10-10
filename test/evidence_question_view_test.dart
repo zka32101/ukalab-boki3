@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:yourwish_kentei/yourwish_kentei.dart';
+import 'package:ukalab_core/ukalab_core.dart';
 
 import 'package:ukalab_boki3/evidence_input/evidence_question_view.dart';
 import 'package:ukalab_boki3/journal_input/journal_input_controller.dart';

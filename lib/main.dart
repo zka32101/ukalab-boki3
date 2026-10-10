@@ -3,11 +3,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'company_mode/company_mode_history_store.dart';
+import 'hands_free/hands_free_state.dart';
 import 'company_mode/company_scenario_list_page.dart';
 import 'mock_exam/mock_exam_page.dart';
 import 'oshi/boki3_oshi_card.dart';
 import 'practice/practice_page.dart';
 import 'progress/progress_store.dart';
+import 'purchase/weak_drill_card.dart';
 import 'progress/progress_summary_card.dart';
 import 'records/records_page.dart';
 import 'settings/settings_page.dart';
@@ -24,7 +26,37 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await migrateLegacyProgressKeys();
   await loadSavedThemeMode();
-  runApp(const ProviderScope(child: UkalabBoki3App()));
+  await loadHandsFree();
+
+  // 課金（RevenueCat）。実際のAPIキー取得後にRevenueCatEntitlementServiceへ差し替える。
+  // 価格は競合調査を踏まえた暫定値で、運営者確認が必要（決定14）。
+  final entitlementService = FakeEntitlementService(
+    availableOffers: const [
+      EntitlementOffer(
+        id: 'noads',
+        productId: 'boki3_noads',
+        title: '広告非表示',
+        priceString: '¥480',
+      ),
+      EntitlementOffer(
+        id: 'premium',
+        productId: 'boki3_premium',
+        title: 'プレミアム（広告非表示＋追加機能）',
+        priceString: '¥1,500',
+      ),
+    ],
+    grantOnPurchase: const {
+      'boki3_noads': EntitlementState(hasNoAds: true),
+      'boki3_premium': EntitlementState(hasPremium: true),
+    },
+  );
+
+  runApp(
+    ProviderScope(
+      overrides: [entitlementServiceProvider.overrideWithValue(entitlementService)],
+      child: const UkalabBoki3App(),
+    ),
+  );
 }
 
 class UkalabBoki3App extends StatelessWidget {
@@ -51,7 +83,9 @@ class UkalabBoki3App extends StatelessWidget {
               progressStore: appProgressStore,
               companyModeHistoryStore: appCompanyModeHistoryStore,
             ),
-            SettingsPage(progressStore: appProgressStore),
+            SettingsPage(progressStore: appProgressStore, purchaseSection: Builder(
+                builder: (c) => PurchaseSection(titleStyle: Theme.of(c).textTheme.titleLarge),
+              )),
           ],
         ),
       ),
@@ -127,6 +161,8 @@ class _LearnPage extends StatelessWidget {
           ),
           child: const Text('すべての問題を練習する（問題集）'),
         ),
+        const SizedBox(height: 8),
+        WeakDrillCard(progressStore: appProgressStore),
         const SizedBox(height: 24),
         Text('用語を調べる', style: theme.textTheme.titleMedium),
         const SizedBox(height: 8),
