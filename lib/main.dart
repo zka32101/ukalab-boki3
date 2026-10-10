@@ -186,7 +186,7 @@ class _LearnPage extends StatelessWidget {
         const SizedBox(height: 24),
         Text('ブックマークとメモ', style: theme.textTheme.titleMedium),
         const SizedBox(height: 8),
-        StudyNotesHomeCards(loadQuestions: loadQuestions),
+        const StudyNotesHomeCards(loadQuestions: loadQuestions),
         const SizedBox(height: 24),
         Text('実践する', style: theme.textTheme.titleMedium),
         const SizedBox(height: 8),
