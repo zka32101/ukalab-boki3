@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:ukalab_boki3/practice/practice_page.dart';
 import 'package:ukalab_boki3/progress/progress_store.dart';
+import 'test_support.dart';
 
 /// 間隔反復（直近の不正解を優先出題する機能）の検証。
 void main() {
@@ -23,7 +25,10 @@ void main() {
       ),
     );
 
-    await tester.pumpWidget(MaterialApp(home: PracticePage(progressStore: progressStore)));
+    await tester.pumpWidget(ProviderScope(
+      overrides: studyNotesTestOverrides(),
+      child: MaterialApp(home: PracticePage(progressStore: progressStore)),
+    ));
     await tester.runAsync(() async {
       await Future<void>.delayed(const Duration(milliseconds: 50));
     });

@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'company_mode/company_mode_history_store.dart';
+import 'exam_data/exam_data_cache.dart';
 import 'hands_free/hands_free_state.dart';
 import 'company_mode/company_scenario_list_page.dart';
 import 'mock_exam/mock_exam_page.dart';
@@ -52,9 +53,14 @@ void main() async {
     },
   );
 
+  final studyNotes = await studyNotesOverrides('boki3');
+
   runApp(
     ProviderScope(
-      overrides: [entitlementServiceProvider.overrideWithValue(entitlementService)],
+      overrides: [
+        entitlementServiceProvider.overrideWithValue(entitlementService),
+        ...studyNotes,
+      ],
       child: const UkalabBoki3App(),
     ),
   );
@@ -177,6 +183,10 @@ class _LearnPage extends StatelessWidget {
             label: const Align(alignment: Alignment.centerLeft, child: Text('用語集')),
           ),
         ),
+        const SizedBox(height: 24),
+        Text('ブックマークとメモ', style: theme.textTheme.titleMedium),
+        const SizedBox(height: 8),
+        StudyNotesHomeCards(loadQuestions: loadQuestions),
         const SizedBox(height: 24),
         Text('実践する', style: theme.textTheme.titleMedium),
         const SizedBox(height: 8),

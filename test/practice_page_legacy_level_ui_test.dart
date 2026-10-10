@@ -4,6 +4,7 @@ import 'package:flutter_test/flutter_test.dart';
 
 import 'package:ukalab_boki3/practice/practice_page.dart';
 import 'package:ukalab_boki3/progress/progress_store.dart';
+import 'test_support.dart';
 
 /// 旧区分表専用の手形問題（6問）が、[PracticePage] の出題プールから
 /// 2027年4月以降は除外されることをUIレベルで確認する（88→82問）。
@@ -11,6 +12,7 @@ void main() {
   testWidgets('2027年4月以降は旧区分表専用の手形問題が出題プールから除外される（88→82問）', (tester) async {
     await tester.pumpWidget(
       ProviderScope(
+        overrides: studyNotesTestOverrides(),
         child: MaterialApp(
           home: PracticePage(
             progressStore: InMemoryProgressStore(),

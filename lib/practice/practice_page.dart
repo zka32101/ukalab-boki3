@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:app_common_kit/app_common_kit.dart';
 import 'package:flutter/material.dart';
+import 'package:ukalab_core/ui.dart';
 import 'package:ukalab_core/ukalab_core.dart';
 
 import '../evidence_input/evidence_question_view.dart';
@@ -181,11 +182,30 @@ class _SessionBodyState extends State<_SessionBody> {
                   ).textTheme.labelLarge?.copyWith(color: Theme.of(context).colorScheme.primary),
                 ),
               ],
+              const Spacer(),
+              IconButton(
+                tooltip: 'メモ',
+                icon: const Icon(Icons.sticky_note_2_outlined),
+                onPressed: () => _showMemo(context, current.qid),
+              ),
+              BookmarkToggleButton(qid: current.qid),
             ],
           ),
         ),
         Expanded(child: _buildQuestion(current, session)),
       ],
+    );
+  }
+
+  /// 問題の形式（仕訳・帳簿・精算表など）に依らず書けるよう、メモは下からのシートで開く。
+  void _showMemo(BuildContext context, String qid) {
+    showModalBottomSheet<void>(
+      context: context,
+      isScrollControlled: true,
+      builder: (ctx) => Padding(
+        padding: EdgeInsets.fromLTRB(16, 16, 16, 16 + MediaQuery.of(ctx).viewInsets.bottom),
+        child: QuestionMemoField(key: ValueKey(qid), qid: qid),
+      ),
     );
   }
 

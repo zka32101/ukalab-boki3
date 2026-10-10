@@ -6,6 +6,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:ukalab_boki3/mock_exam/mock_exam_page.dart';
 import 'package:ukalab_boki3/practice/choice_question_view.dart';
 import 'package:ukalab_boki3/progress/progress_store.dart';
+import 'test_support.dart';
 
 void main() {
   setUp(() {
@@ -18,6 +19,7 @@ void main() {
     // pumpAndSettle ではなく有限の pump を使う。
     await tester.pumpWidget(
       ProviderScope(
+        overrides: studyNotesTestOverrides(),
         child: MaterialApp(home: MockExamPage(progressStore: InMemoryProgressStore())),
       ),
     );
