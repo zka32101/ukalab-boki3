@@ -408,6 +408,20 @@ Chromiumをヘッドレスモードで動かし、スクリーンショットで
   `flutter test`（89件）成功、Webビルド＋ヘッドレスブラウザでの表示確認（手形問題の表示、科目ピッカーで
   「支払手形」を検索・選択できることを確認、console error 0件）も実施済み
 
+## 並行開発の統合（2026-10-10）
+
+- 別セッションで進んでいた9件のコミットを`git pull --no-rebase`で取り込んだ（コンフリクトなし）。
+  主な変更点:
+  - 共通エンジンパッケージが`yourwish_kentei`から`ukalab_core`（v0.22.0）に改名。
+    全`import 'package:yourwish_kentei/...'`が`import 'package:ukalab_core/...'`に置き換わった
+  - `app_common_kit`がv0.24.0に更新（`PurchaseSection`/`ExamDateTile`等）
+  - 課金機能（`purchases_flutter`、`entitlementServiceProvider`、弱点ドリル`weak_drill_card.dart`）、
+    ながら学習モード（`flutter_tts`による読み上げ、`lib/hands_free/`配下）が追加
+  - CI（`.github/workflows/ci.yml`）・E2E（`e2e/`）が追加
+- 統合後、`flutter pub get`・`flutter analyze`（0件）・`flutter test`（96件成功）で検証済み。
+  このセッションで実装した旧区分表向け勘定科目・手形問題・`accountPool`切り替え・電卓案内は、
+  上記の課金機能・ながら学習モードとも問題なく共存している
+
 ## 未決・要確認（企画設計書 第6章より）
 
 1. ~~ネット試験の解答入力方式とアプリの入力UIの合わせ方~~ → **調査済み（2026-10-08、Web検索）**。
