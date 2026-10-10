@@ -13,11 +13,11 @@ packages:
     dependency: "direct main"
     description:
       path: "."
-      ref: "v1.0.0"
-      resolved-ref: "86f3248b597e0dfa897fab513cde860e9904f980"
+      ref: "v1.5.0"
+      resolved-ref: "372a1eca911f5446e8712a3f3c6f1d2ce36a7b32"
       url: "https://github.com/zka32101/app_common_kit.git"
     source: git
-    version: "1.0.0"
+    version: "1.5.0"
   async:
     dependency: transitive
     description:
@@ -189,7 +189,7 @@ packages:
     source: sdk
     version: "0.0.0"
   flutter_tts:
-    dependency: "direct main"
+    dependency: transitive
     description:
       name: flutter_tts
       sha256: ce5eb209b40e95f2f4a1397116c87ab2fcdff32257d04ed7a764e75894c03775
@@ -458,11 +458,11 @@ packages:
     dependency: "direct main"
     description:
       path: "."
-      ref: "v0.24.0"
-      resolved-ref: "03f9946716b71fd1bcaa5aed1988f5030206f286"
+      ref: "v0.26.0"
+      resolved-ref: "97264883180e1580d5af36221409f6a83f7416db"
       url: "https://github.com/zka32101/ukalab_core.git"
     source: git
-    version: "0.24.0"
+    version: "0.26.0"
   uuid:
     dependency: transitive
     description:
