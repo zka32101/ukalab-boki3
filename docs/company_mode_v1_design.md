@@ -147,6 +147,26 @@ class CompanyTurn {
 `FreeTierLimits`（`yourwish_kentei`）に「無料で遊べるシナリオ数」のような制限を追加し、
 シナリオ一覧の後半をロック表示する方針で検討し直す。
 
+### 有料化の実装（2026-10-10、Phase 4）
+
+別セッションの統合で、アプリ全体の課金導線（`purchases_flutter`・`entitlementServiceProvider`・
+`PremiumFeature`〈弱点ドリル等〉）が実装された。これにより「アプリ全体の課金導線を実装する段」に
+なったため、会社経営モードの有料化を実装した。
+
+- 業種違いの最初の2シナリオ（カフェどんぐり・雑貨屋ことり）は無料のまま、残り3シナリオ
+  （フリーランス事務所・法律事務所つくし・卸売商事にじいろ）をプレミアム限定にした
+  （`lib/company_mode/company_scenario_list_page.dart`の`freeCompanyScenarioIds`）
+- `ukalab_core`（別リポジトリ）の`PremiumFeature`enumには、コメント上「問題・解説・模擬試験・
+  基本の苦手特訓は無料でここには含めない」という共通方針があり、会社経営モードはまだ含まれていない。
+  このセッションのGitHubアクセスは`ukalab-boki3`のみに限定されているため、共通enumは変更せず、
+  アプリ側で`entitlementStateProvider`（`EntitlementState.hasPremium`）を直接見て判定する形で実装した
+  （弱点ドリルの`PremiumFeature.weakDrill`とは別の線引き）
+- 未購読でプレミアムシナリオをタップすると、画面には入らず案内（SnackBar）のみ出す
+  （`weak_drill_card.dart`と同じパターン）。一覧では未購読でも鍵アイコンでロック中と分かるようにした
+- `test/company_scenario_list_free_test.dart`・`company_scenario_list_premium_blocked_test.dart`・
+  `company_scenario_list_premium_allowed_test.dart`で検証（既知の制約により1テスト1ファイルに分割）。
+  `flutter analyze` 0件・`flutter test`（99件）成功
+
 ## 未決・要確認
 
 1. 下部ナビに専用タブを作るか、「学ぶ」タブ内導線のままにするか（利用状況を見てから判断）

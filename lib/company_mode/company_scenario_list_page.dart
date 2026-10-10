@@ -1,26 +1,31 @@
 import 'package:app_common_kit/app_common_kit.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:ukalab_core/ukalab_core.dart';
 
 import '../exam_data/exam_data_cache.dart';
 import 'company_mode_history_store.dart';
 import 'company_scenario_play_page.dart';
 
+/// 無料で使えるシナリオ（業種違いの最初の2つ）。残りはプレミアム限定。
+/// `docs/company_mode_v1_design.md`「有料化の検討」参照。
+const Set<String> freeCompanyScenarioIds = {'cafe_donguri', 'zakka_kotori'};
+
 /// 「学ぶ」タブから開く会社経営モードのシナリオ選択画面。
 ///
-/// `docs/company_mode_v1_design.md` のPhase 1〜2。初回は業種違いの3シナリオを
-/// 全て無料で公開する。
-class CompanyScenarioListPage extends StatefulWidget {
+/// `docs/company_mode_v1_design.md` のPhase 1〜3。[freeCompanyScenarioIds] の
+/// シナリオは無料、それ以外はプレミアム限定で、未購読タップは案内のみで画面に入れない。
+class CompanyScenarioListPage extends ConsumerStatefulWidget {
   const CompanyScenarioListPage({super.key, required this.historyStore});
 
   /// プレイ結果の保存先（「記録」タブの経営履歴に表示する）。
   final CompanyModeHistoryStore historyStore;
 
   @override
-  State<CompanyScenarioListPage> createState() => _CompanyScenarioListPageState();
+  ConsumerState<CompanyScenarioListPage> createState() => _CompanyScenarioListPageState();
 }
 
-class _CompanyScenarioListPageState extends State<CompanyScenarioListPage> {
+class _CompanyScenarioListPageState extends ConsumerState<CompanyScenarioListPage> {
   late Future<List<CompanyScenario>> _scenariosFuture;
 
   @override
@@ -29,8 +34,28 @@ class _CompanyScenarioListPageState extends State<CompanyScenarioListPage> {
     _scenariosFuture = loadCompanyScenarios();
   }
 
+  void _openScenario(CompanyScenario scenario) {
+    final entitlement = ref.read(entitlementStateProvider).valueOrNull ?? EntitlementState.free;
+    if (!freeCompanyScenarioIds.contains(scenario.scenarioId) && !entitlement.hasPremium) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('このシナリオはプレミアムの機能です。設定から購入できます。')),
+      );
+      return;
+    }
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (_) => CompanyScenarioPlayPage(
+          scenario: scenario,
+          historyStore: widget.historyStore,
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
+    // タップ時に読むだけだと未購読で読み込み中のまま「無料」と判定されるため、ここで購読しておく。
+    ref.watch(entitlementStateProvider);
     final theme = Theme.of(context);
     return Scaffold(
       appBar: AppBar(title: const Text('会社を経営する')),
@@ -53,6 +78,7 @@ class _CompanyScenarioListPageState extends State<CompanyScenarioListPage> {
             separatorBuilder: (_, __) => const SizedBox(height: 12),
             itemBuilder: (context, index) {
               final scenario = scenarios[index];
+              final isFree = freeCompanyScenarioIds.contains(scenario.scenarioId);
               return Card(
                 child: ListTile(
                   title: Text(scenario.companyName),
@@ -60,15 +86,10 @@ class _CompanyScenarioListPageState extends State<CompanyScenarioListPage> {
                     '${scenario.industry} ・ 全${scenario.turns.length}ターン',
                     style: theme.textTheme.bodySmall,
                   ),
-                  trailing: const Icon(Icons.chevron_right),
-                  onTap: () => Navigator.of(context).push(
-                    MaterialPageRoute(
-                      builder: (_) => CompanyScenarioPlayPage(
-                        scenario: scenario,
-                        historyStore: widget.historyStore,
-                      ),
-                    ),
-                  ),
+                  trailing: isFree
+                      ? const Icon(Icons.chevron_right)
+                      : Icon(Icons.lock_outline, color: theme.colorScheme.outline),
+                  onTap: () => _openScenario(scenario),
                 ),
               );
             },
