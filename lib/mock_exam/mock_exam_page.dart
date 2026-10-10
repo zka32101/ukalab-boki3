@@ -284,6 +284,11 @@ class _MockExamIntroView extends StatelessWidget {
               '本試験と同じく、解答中は正誤が表示されません。全問解き終えると結果がまとめて表示されます。',
               style: theme.textTheme.bodyMedium?.copyWith(color: theme.colorScheme.outline),
             ),
+            Text(
+              '本試験（統一試験・ネット試験とも）では電卓を実機で持ち込んで使います。'
+              'このアプリに電卓機能はないため、お手元の電卓を使って解いてみましょう。',
+              style: theme.textTheme.bodyMedium?.copyWith(color: theme.colorScheme.outline),
+            ),
             const SizedBox(height: 32),
             FilledButton(
               onPressed: poolSize < level.questionCount ? null : onStart,
