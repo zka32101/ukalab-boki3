@@ -7,12 +7,16 @@ import '../progress/progress_store.dart';
 
 /// 「設定」タブ。アプリの説明と、解答記録をリセットする機能を提供する。
 class SettingsPage extends StatelessWidget {
-  const SettingsPage({super.key, required this.progressStore, this.purchaseSection});
+  const SettingsPage({super.key, required this.progressStore, this.purchaseSection, this.dataSection});
 
   final ProgressStore progressStore;
 
   /// 購入の欄（Riverpod の ProviderScope と権利サービスが必要なため、アプリ側から差し込む）。
   final Widget? purchaseSection;
+
+  /// 「データの管理」（書き出し・読み込み・リセット）。Riverpod の ProviderScope が必要なため、
+  /// アプリ側から差し込む。渡すと、下の簡易な「データ」欄（リセットのみ）の代わりに表示する。
+  final Widget? dataSection;
 
   Future<void> _confirmAndReset(BuildContext context) async {
     final confirmed = await showDialog<bool>(
@@ -95,6 +99,9 @@ class SettingsPage extends StatelessWidget {
           '非公式の学習アプリです。「日商簿記」は各団体の商標・登録商標である可能性があります。',
         ),
         const SizedBox(height: 32),
+        if (dataSection != null)
+          dataSection!
+        else ...[
         Text('データ', style: theme.textTheme.titleLarge),
         const SizedBox(height: 12),
         Text(
@@ -108,6 +115,7 @@ class SettingsPage extends StatelessWidget {
           icon: const Icon(Icons.delete_outline),
           label: const Text('解答記録をリセットする'),
         ),
+        ],
       ],
     );
   }
