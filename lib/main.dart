@@ -14,8 +14,10 @@ import 'progress/progress_store.dart';
 import 'purchase/weak_drill_card.dart';
 import 'progress/progress_summary_card.dart';
 import 'records/records_page.dart';
+import 'settings/boki_data_parts.dart';
 import 'settings/settings_page.dart';
 import 'startup/legacy_key_migration.dart';
+import 'term/learned_terms_store.dart';
 import 'term/term_list_page.dart';
 
 /// 演習・模擬試験の解答記録の保存先。端末内保存（アプリ全体で共有）。
@@ -90,9 +92,21 @@ class UkalabBoki3App extends StatelessWidget {
               progressStore: appProgressStore,
               companyModeHistoryStore: appCompanyModeHistoryStore,
             ),
-            SettingsPage(progressStore: appProgressStore, purchaseSection: Builder(
+            SettingsPage(
+              progressStore: appProgressStore,
+              purchaseSection: Builder(
                 builder: (c) => PurchaseSection(titleStyle: Theme.of(c).textTheme.titleLarge),
-              )),
+              ),
+              dataSection: DataManagementSection(
+                parts: bokiDataParts(
+                  progressStore: appProgressStore,
+                  companyModeHistoryStore: appCompanyModeHistoryStore,
+                  learnedTermsStore: LearnedTermsStore(),
+                ),
+                description: '解答記録・会社経営モードの履歴・「覚えた」にした用語・自分用メモは、'
+                    'テーマや購入を除いて、書き出し・読み込み・リセットができます。端末内にのみ保存されています。',
+              ),
+            ),
           ],
         ),
       ),
